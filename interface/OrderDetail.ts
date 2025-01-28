@@ -1,4 +1,4 @@
-interface OrderDetail {
+export interface OrderDetail {
     id: number;
     orderId: number;
     productId: number;
