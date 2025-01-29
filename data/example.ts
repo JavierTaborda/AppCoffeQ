@@ -30,49 +30,50 @@ const payments: Payment[] = [
 ];
 
 const products: Product[] = [
-  { id: 1, name: "Café Espresso", description: "Un espresso fuerte y con sabor intenso.", price: 10.0, image: "espresso.png", isActive: true },
-  { id: 2, name: "Café Capuccino", description: "Un capuccino con espuma fina y cremoso.", price: 15.0, image: "capuccino.png", isActive: true },
-  { id: 3, name: "Café Latte", description: "Un latte suave y delicioso.", price: 12.0, image: "latte.png", isActive: true },
-  { id: 4, name: "Mocha", description: "Un mocha con chocolate y café.", price: 18.0, image: "mocha.png", isActive: false }
+  { id: 1, name: "Café Espresso", description: "Un espresso fuerte y con sabor intenso.", price: 10.0,
+     image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/espresso.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9lc3ByZXNzby5qcGciLCJpYXQiOjE3MzgxNzYwNjAsImV4cCI6MTc2OTcxMjA2MH0.CUl8svImD5swhPHGpAd8Gqx5u0mgkH23VPw08u-DKnU", isActive: true },
+  { id: 2, name: "Café Capuccino", description: "Un capuccino con espuma fina y cremoso.", price: 15.0, image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/capuccino.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9jYXB1Y2Npbm8uanBnIiwiaWF0IjoxNzM4MTc1OTU0LCJleHAiOjE3Njk3MTE5NTR9.PQKZAm4FJPK4Y0T3WNrInEmNuaXG8tKtlErpit0dNUI", isActive: true },
+  { id: 3, name: "Café Latte", description: "Un latte suave y delicioso.", price: 12.0, image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/latte.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9sYXR0ZS5qcGciLCJpYXQiOjE3MzgxNzYwODAsImV4cCI6MTc2OTcxMjA4MH0.GNNaFVumhyAe8AbXGF9B0u4gG2FKEoIZZPb3_eIPxDQ", isActive: true },
+  { id: 4, name: "Mocha", description: "Un mocha con chocolate y café.", price: 18.0, image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/mocha.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9tb2NoYS5qcGciLCJpYXQiOjE3MzgxNzYwOTIsImV4cCI6MTc2OTcxMjA5Mn0.BAF2AswfCAzG0vvaURqAJ_C4TW5xzNEC8yqvyTjzV5M", isActive: false }
 ];
 
 // Funciones de API simulada
-export function getCustomers(): Customer[] {
+export function getCustomersExample(): Customer[] {
   return customers;
 }
 
-export function getCustomerById(id: number): Customer | undefined {
+export function getCustomerByIdExample(id: number): Customer | undefined {
   return customers.find(customer => customer.id === id);
 }
 
-export function getOrders(): Order[] {
+export function getOrdersExample(): Order[] {
   return orders;
 }
 
-export function getOrderById(id: number): Order | undefined {
+export function getOrderByIdExample(id: number): Order | undefined {
   return orders.find(order => order.id === id);
 }
 
-export function getOrderDetails(): OrderDetail[] {
+export function getOrderDetailsExample(): OrderDetail[] {
   return orderDetails;
 }
 
-export function getOrderDetailById(id: number): OrderDetail | undefined {
+export function getOrderDetailByIdExample(id: number): OrderDetail | undefined {
   return orderDetails.find(detail => detail.id === id);
 }
 
-export function getPayments(): Payment[] {
+export function getPaymentsExample(): Payment[] {
   return payments;
 }
 
-export function getPaymentById(id: number): Payment | undefined {
+export function getPaymentByIdExample(id: number): Payment | undefined {
   return payments.find(payment => payment.id === id);
 }
 
-export function getProducts(): Product[] {
+export function getProductsExample(): Product[] {
   return products;
 }
 
-export function getProductById(id: number): Product | undefined {
+export function getProductByIdExample(id: number): Product | undefined {
   return products.find(product => product.id === id);
 }

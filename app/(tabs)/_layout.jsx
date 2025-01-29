@@ -44,6 +44,7 @@ export default function TabLayout() {
             options={{
                 title: 'Home',
                 tabBarIcon: ({ color }) => <MaterialCommunityIcons name="food-variant" size={28} color={color} />,
+                headerShown: false,
             }}
         />
         <Tabs.Screen 
