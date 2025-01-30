@@ -2,31 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, TextInput, Button } from 'react-native';
 import { getProducts } from '../../services/ProductsService';
 import { colors } from '../../constants/colors';
-import { BarCodeScanner } from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
+import { Product } from '@/interfaces/Product';
 
 export default function ProductList() {
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [search, setSearch] = useState('');
-    const [selectedClient, setSelectedClient] = useState('');
-    const [scanned, setScanned] = useState(false);
-    const [hasPermission, setHasPermission] = useState(null);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+    const [search, setSearch] = useState<string>('');
+    const [selectedClient, setSelectedClient] = useState<string>('');
+    const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
     useEffect(() => {
-        (async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
-            setHasPermission(status === 'granted');
-        })();
+        async function fetchData() {
+            const products = await getProducts();
+            setProducts(products);
+            setFilteredProducts(products);
+        }
+        fetchData();
     }, []);
 
-    useEffect(() => {
-        const products = getProducts();
-        setProducts(products);
-        setFilteredProducts(products);
-    }, []);
-
-    const handleSearch = (text) => {
+    const handleSearch = (text: string) => {
         const filtered = products.filter(product =>
             product.name.toLowerCase().includes(text.toLowerCase())
         );
@@ -34,30 +29,20 @@ export default function ProductList() {
         setSearch(text);
     };
 
-    const handleBarCodeScanned = ({ type, data }) => {
-        setScanned(true);
-        const scannedProduct = products.find(product => product.id.toString() === data);
-        if (scannedProduct) {
-            setFilteredProducts([scannedProduct]);
-        } else {
-            alert('Producto no encontrado');
-        }
-    };
-
-    const handleBuy = (product) => {
+    const handleBuy = (product: Product) => {
         alert(`Compraste: ${product.name}`);
     };
 
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item }: { item: Product }) => (
         <View style={styles.item}>
             <View style={styles.containerimg}>
                 <Image source={{ uri: item.image }} style={styles.image} />
             </View>
             <View style={styles.containerinfo}>
                 <View>
-                    <Text style={styles.title} numberOfLines={1} ellipsizeMode='tail'>{item.name}</Text>
+                    <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
                     <Text style={styles.price}>${item.price.toFixed(2)}</Text>
-                    <Text style={styles.description} numberOfLines={1} ellipsizeMode='tail'>{item.description}</Text>
+                    <Text style={styles.description} numberOfLines={1} ellipsizeMode="tail">{item.description}</Text>
                 </View>
                 <TouchableOpacity
                     style={styles.buy}
@@ -71,41 +56,32 @@ export default function ProductList() {
     );
 
     return (
-        <>
-            {/* <View style={styles.containercliente}>
-                <Text>Seleccionar Cliente</Text>
+        <View style={styles.container}>
+            <View style={styles.pickerContainer}>
                 <Picker
                     selectedValue={selectedClient}
-                    style={styles.picker}
                     onValueChange={(itemValue) => setSelectedClient(itemValue)}
+                    style={styles.picker}
                 >
-                    <Picker.Item label="Cliente 1" value="cliente1" />
-                    <Picker.Item label="Cliente 2" value="cliente2" />
+                    <Picker.Item label="Todos" value="" />
+                    <Picker.Item label="Cliente 1" value="1" />
+                    <Picker.Item label="Cliente 2" value="2" />
+                    <Picker.Item label="Cliente 3" value="3" />
                 </Picker>
-                <Button title="Escanear QR" onPress={() => setScanned(false)} />
-                {hasPermission === false && <Text>No hay acceso a la cámara</Text>}
-                {!scanned && (
-                    <BarCodeScanner
-                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                        style={StyleSheet.absoluteFillObject}
-                    />
-                )}
-            </View> */}
-            <View style={styles.container}>
-                <TextInput
-                    style={styles.searchbar}
-                    placeholder="Buscar Producto"
-                    value={search}
-                    onChangeText={handleSearch}
-                />
-                <FlatList
-                    data={filteredProducts}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id.toString()}
-                    contentContainerStyle={styles.listContent}
-                />
             </View>
-        </>
+            <TextInput
+                style={styles.searchbar}
+                placeholder="Buscar Producto"
+                value={search}
+                onChangeText={handleSearch}
+            />
+            <FlatList
+                data={filteredProducts}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={styles.listContent}
+            />
+        </View>
     );
 }
 
@@ -114,24 +90,42 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 20,
         paddingHorizontal: 10,
-        backgroundColor: colors.background,
+        backgroundColor: colors.whiteBack,
     },
-    containercliente: {
-        padding: 10,
-        backgroundColor: colors.white,
-        borderRadius: 10,
-        marginBottom: 10,
-    },
-    searchbar: {
-        padding: 10,
+    pickerContainer: {
+        padding: 15,
         marginVertical: 10,
+        marginHorizontal: 5,
+        height: 50,
         borderColor: '#cccccc',
         borderWidth: 1,
         borderRadius: 5,
+        backgroundColor: colors.white,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        justifyContent: 'center',
     },
     picker: {
+        height: '100%',
+        color: colors.lightBlack,
+    },
+    searchbar: {
+        padding: 15,
+        marginVertical: 10,
+        marginHorizontal: 5,
         height: 50,
-        width: '100%',
+        borderColor: '#cccccc',
+        borderWidth: 1,
+        borderRadius: 5,
+        backgroundColor: colors.white,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     listContent: {
         paddingBottom: 20,
@@ -166,7 +160,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: colors.textPrimary,
+        color: colors.lightBlack,
     },
     price: {
         fontSize: 16,
@@ -176,7 +170,7 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 14,
-        color: colors.textSecondary,
+        color: colors.gray,
         lineHeight: 20,
     },
     buy: {

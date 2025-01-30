@@ -12,4 +12,5 @@ export const colors = {
     lightWhite: "#F9FAFB",
     lightBlue: "#60A5FA",
     inactive: "#999",
+    whiteBack: "#F0F0F0",
 };
