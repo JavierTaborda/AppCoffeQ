@@ -1,8 +1,10 @@
 import axios from 'axios';
+import {API_URL} from '@env';
+
 
 // Configura la URL base de tu API
 const api = axios.create({
-  baseURL: 'https://tu-api.com/api', // Reemplaza con la URL de tu API
+  baseURL: API_URL, // 'https://api.example.com'
   headers: {
     'Content-Type': 'application/json',
   },
