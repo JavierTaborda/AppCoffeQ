@@ -1,7 +1,8 @@
 export interface Customer {
-    id: number;
+    idCustomer: number;
     name: string;
+    cedula: string;
     email: string;
-    password: string;
-    isActive: boolean;
+    phone: string;
+
 }

@@ -1,7 +1,11 @@
 export interface OrderDetail {
-    id: number;
-    orderId: number;
-    productId: number;
+    idOrderDetail: number;
+    idOrder: number;
+    idProduct: number;
     quantity: number;
     subtotal: number;
+    isPaid: boolean;
+    productName: string;
+    date: string;
+    datePaid: string;
 }

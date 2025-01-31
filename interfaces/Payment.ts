@@ -1,7 +1,7 @@
 export interface Payment {
-    id: number;
-    orderId: number;
+    idPayment: number;
+    idOrder: number;
     date: string;
     amount: number;
-    
+    ref: string; 
 }

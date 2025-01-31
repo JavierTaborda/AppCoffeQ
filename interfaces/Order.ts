@@ -1,6 +1,9 @@
+import { OrderDetail } from './OrderDetail';
 export interface Order {
-    id: number;
-    customerId: number;
+    idOrder: number;
+    idCustomer: number;
     date: string;
     total: number;
+    customerName: string;
+    orderDetails: OrderDetail[];
 }

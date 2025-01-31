@@ -78,7 +78,7 @@ export default function ProductList() {
             <FlatList
                 data={filteredProducts}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item.idProduct.toString()}
                 contentContainerStyle={styles.listContent}
             />
         </View>

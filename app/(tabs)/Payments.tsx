@@ -1,5 +1,6 @@
 
 import { View, Text, StyleSheet } from 'react-native';
+import { Payment } from '@/interfaces/Payment';
 
 export default function PaymentsScreen() {
     return (
