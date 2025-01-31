@@ -3,7 +3,7 @@ import {API_URL} from '@env';
 
 
 // Configura la URL base de tu API
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_URL, // 'https://api.example.com'
   headers: {
     'Content-Type': 'application/json',
