@@ -8,7 +8,7 @@ import {
   Image,
   TextInput,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient"; 
+import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
   faBagShopping,
@@ -20,18 +20,15 @@ import { colors } from "../../constants/colors";
 import { Product } from "@/interfaces/Product";
 import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
-import ModalProduct from "./../components/index/ModalProduct"
+import ModalProduct from "../components/index/ModalProduct";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [selectedClient, setSelectedClient] = useState<string>("");
-    const [isModalVisible, setModalVisible] = useState<boolean>(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(
-      null
-    );
-    
+  const [isModalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
   const [order, setOrder] = useState<Order>({
     idOrder: 0,
     idCustomer: 0,
@@ -128,7 +125,7 @@ export default function ProductList() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[colors.primary, colors.secondary]} // Gradiente con tus colores
+        colors={[colors.primary, colors.secondary]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.infoContainer}
@@ -175,11 +172,13 @@ export default function ProductList() {
         keyExtractor={(item) => item.idProduct.toString()}
         contentContainerStyle={styles.listContent}
       />
+
+    
       <ModalProduct
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-        product={selectedProduct}
-        onConfirm={handleConfirmPurchase}
+        onConfirm={handleConfirmPurchase} 
+        selectedProduct={selectedProduct}
       />
     </View>
   );
