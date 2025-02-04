@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
+  Modal,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Animated,
+  PanResponder,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
-  TouchableWithoutFeedback,
 } from "react-native";
-import Modal from "react-native-modal";
 import { colors } from "@/constants/colors";
 
 interface ModalGenericProps {
@@ -31,6 +34,10 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
   cancelText = "Cancelar",
   children,
 }) => {
+  const panY = useRef(new Animated.Value(0)).current;
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -53,7 +60,61 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
     };
   }, []);
 
-  const handleBackButtonPress = () => {
+  useEffect(() => {
+    if (isVisible) {
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+      panY.setValue(0);
+    }
+  }, [isVisible]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => !isScrolling && isAtTop,
+      onMoveShouldSetPanResponder: () => !isScrolling && isAtTop,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          panY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 30 && gestureState.vy > 0.5) {
+          Animated.timing(panY, {
+            toValue: 500,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(onClose);
+        } else {
+          Animated.timing(panY, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const translateY = panY.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: [0, 0, 1],
+  });
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    setIsAtTop(offsetY <= 0);
+  };
+
+  const handleBackdropPress = () => {
     if (isKeyboardVisible) {
       Keyboard.dismiss();
     } else {
@@ -62,83 +123,100 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
   };
 
   return (
-  <Modal
-  isVisible={isVisible}
-  onBackdropPress={handleBackButtonPress}
-  onSwipeComplete={handleBackButtonPress}
-  swipeDirection={["down"]}
-  useNativeDriver
-  useNativeDriverForBackdrop
-  style={styles.modal}
-  backdropOpacity={0.5}
-  backdropTransitionInTiming={200}
-  backdropTransitionOutTiming={200}
-  propagateSwipe={true}
-  animationIn="slideInUp"
-  animationOut="slideOutDown"
-  hideModalContentWhileAnimating={true}
->
-
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalContent}
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={onClose}
+    >
+      <Animated.View
+        style={[
+          styles.modalOverlay,
+          {
+            opacity: overlayOpacity,
+          },
+        ]}
+      >
+        <Animated.View
+          style={[
+            styles.modalContent,
+            {
+              transform: [{ translateY }],
+            },
+          ]}
         >
-          <View style={styles.swipeIndicator} />
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.modalContent}
+          >
+            <View style={styles.dragBarContainer} {...panResponder.panHandlers}>
+              <View style={styles.dragBar} />
+            </View>
 
-          {title && <Text style={styles.modalTitle}>{title}</Text>}
+            {title && <Text style={styles.modalTitle}>{title}</Text>}
 
-          {children}
+            {children}
 
-          {onConfirm && (
-            <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
-              <Text style={styles.confirmButtonText}>{confirmText}</Text>
+            {onConfirm && (
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={onConfirm}
+              >
+                <Text style={styles.confirmButtonText}>{confirmText}</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+              <Text style={styles.cancelButtonText}>{cancelText}</Text>
             </TouchableOpacity>
-          )}
-
-          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelButtonText}>{cancelText}</Text>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  modal: {
+  modalOverlay: {
+    flex: 1,
     justifyContent: "flex-end",
-    margin: 0,
-    width: "100%",
-    height: "100%",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: colors.white,
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    alignItems: "center",
+    width: "100%",
     maxHeight: "80%",
+    alignItems: "center",
   },
-  swipeIndicator: {
-    width: 80,
-    height: 5,
-    backgroundColor: "#ccc",
-    borderRadius: 3,
+  dragBarContainer: {
+    width: "100%",
+    alignItems: "center",
     marginBottom: 10,
+    paddingVertical: 10,
+  },
+  dragBar: {
+    width: 80,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
+    textAlign: "center",
   },
   confirmButton: {
     backgroundColor: colors.primary,
     padding: 15,
     borderRadius: 10,
-    width: "100%",
     alignItems: "center",
     marginBottom: 10,
+    width: "100%",
   },
   confirmButtonText: {
     color: "white",
@@ -149,8 +227,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc",
     padding: 15,
     borderRadius: 10,
-    width: "100%",
     alignItems: "center",
+    marginBottom: 10,
+    width: "100%",
   },
   cancelButtonText: {
     color: "#333",

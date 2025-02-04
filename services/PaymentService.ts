@@ -22,3 +22,31 @@ export async function getPayment(idPayment:number ): Promise<Payment[]>
         return [];
     }
 } 
+export async function createPayment(payment: Payment): Promise<Payment> {
+    try {
+        const response = await api.post('/payment', payment);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        return {} as Payment;
+    }
+}
+export async function updatePayment(payment: Payment): Promise<Payment> {
+    try {
+        const response = await api.put('/payment', payment);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        return {} as Payment;
+    }
+}
+
+export async function deletePayment(idPayment: number): Promise<boolean> {  
+    try {
+        await api.delete(`/payment/${idPayment}`);
+        return true;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}

@@ -13,7 +13,7 @@ import { colors } from "@/constants/colors";
 interface ModalProductProps {
   isVisible: boolean;
   onClose: () => void;
-  onConfirm: (quantity: number) => void; // Ahora onConfirm recibe la cantidad
+  onConfirm: (quantity: number) => void; 
   selectedProduct: Product | null;
 }
 

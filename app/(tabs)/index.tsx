@@ -21,12 +21,14 @@ import { Product } from "@/interfaces/Product";
 import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
 import ModalProduct from "../components/index/ModalProduct";
+import ModalListProducts from "../components/index/ModalListProducts";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [isModalVisible, setModalVisible] = useState<boolean>(false);
+  const [isModalVisible, setModalVisible] = useState<boolean>(false); //Confirtmation Modal
+  const [isModalListVisible, setModalListVisible] = useState<boolean>(false);//List Modal
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const [order, setOrder] = useState<Order>({
@@ -63,6 +65,9 @@ export default function ProductList() {
     setSelectedProduct(product);
     setModalVisible(true);
   };
+   const handleList = () => {
+     setModalListVisible(true);
+   };
 
   const handleConfirmPurchase = (quantity: number) => {
     if (selectedProduct) {
@@ -91,6 +96,9 @@ export default function ProductList() {
       alert(`Agregado: ${selectedProduct.name} x ${quantity}`);
     }
   };
+  const handleConfirmList = () => {
+    alert("Lista Verificada");
+  }
 
   const renderItem = ({ item }: { item: Product }) => (
     <View style={styles.item}>
@@ -124,40 +132,46 @@ export default function ProductList() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={[colors.primary, colors.secondary]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.infoContainer}
-      >
-        <View style={styles.infoContent}>
-          <View style={styles.infoSection}>
-            <FontAwesomeIcon
-              icon={faBagShopping}
-              size={24}
-              color={colors.white}
-            />
-            <Text style={styles.infoText}>{order.orderDetails.length}</Text>
-            <Text style={styles.infoLabel}>Productos</Text>
-          </View>
-          <View style={styles.infoSection}>
-            <FontAwesomeIcon
-              icon={faDollarSign}
-              size={24}
-              color={colors.white}
-            />
-            <Text style={styles.infoText}>${order.total.toFixed(2)}</Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={createOrder}
-          activeOpacity={0.7}
+      <TouchableOpacity onPress={() => handleList()} activeOpacity={0.9}>
+        <LinearGradient
+          colors={[colors.primary, colors.secondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.infoContainer}
         >
-          <Text style={styles.createButtonText}>Crear</Text>
-          <FontAwesomeIcon icon={faCaretRight} size={20} color={colors.white} />
-        </TouchableOpacity>
-      </LinearGradient>
+          <View style={styles.infoContent}>
+            <View style={styles.infoSection}>
+              <FontAwesomeIcon
+                icon={faBagShopping}
+                size={24}
+                color={colors.white}
+              />
+              <Text style={styles.infoText}>{order.orderDetails.length}</Text>
+              <Text style={styles.infoLabel}>Productos</Text>
+            </View>
+            <View style={styles.infoSection}>
+              <FontAwesomeIcon
+                icon={faDollarSign}
+                size={24}
+                color={colors.white}
+              />
+              <Text style={styles.infoText}>${order.total.toFixed(2)}</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={createOrder}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.createButtonText}>Crear</Text>
+            <FontAwesomeIcon
+              icon={faCaretRight}
+              size={20}
+              color={colors.white}
+            />
+          </TouchableOpacity>
+        </LinearGradient>
+      </TouchableOpacity>
 
       <TextInput
         style={styles.searchbar}
@@ -173,12 +187,17 @@ export default function ProductList() {
         contentContainerStyle={styles.listContent}
       />
 
-    
       <ModalProduct
         isVisible={isModalVisible}
         onClose={() => setModalVisible(false)}
-        onConfirm={handleConfirmPurchase} 
+        onConfirm={handleConfirmPurchase}
         selectedProduct={selectedProduct}
+      />
+      <ModalListProducts
+        isVisible={isModalListVisible}
+        onClose={() => setModalListVisible(false)}
+        onConfirm={handleConfirmList}
+        order={order}
       />
     </View>
   );
