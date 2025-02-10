@@ -22,7 +22,7 @@ import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
 import ModalProduct from "../components/index/ModalProduct";
 import ModalListProducts from "../components/index/ModalListProducts";
-
+ 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
