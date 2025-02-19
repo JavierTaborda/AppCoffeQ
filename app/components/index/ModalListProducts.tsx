@@ -27,6 +27,9 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
       cancelText="Cancelar"
     >
       {order ? (
+        <>
+          
+         
         <FlatList
           data={order.orderDetails}
           keyExtractor={(item, index) => index.toString()}
@@ -42,6 +45,7 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
           contentContainerStyle={styles.productList}
           showsVerticalScrollIndicator={true}
         />
+        </>
       ) : (
         <Text>No hay detalles de la orden disponibles.</Text>
       )}
@@ -54,6 +58,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     width: "100%",
     marginBottom: 20,
+   
+    
   },
   productCard: {
     backgroundColor: colors.white,
@@ -65,6 +71,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+    
   },
   productName: {
     fontSize: 18,

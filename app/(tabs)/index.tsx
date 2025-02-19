@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Image,
   TextInput,
-} from "react-native";
+} from "react-native"; 
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -24,6 +24,7 @@ import ModalProduct from "../components/index/ModalProduct";
 import ModalListProducts from "../components/index/ModalListProducts";
  
 export default function ProductList() {
+ 
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");

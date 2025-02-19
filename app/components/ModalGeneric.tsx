@@ -7,8 +7,6 @@ import {
   StyleSheet,
   Animated,
   PanResponder,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
@@ -109,18 +107,7 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
     outputRange: [0, 0, 1],
   });
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const offsetY = event.nativeEvent.contentOffset.y;
-    setIsAtTop(offsetY <= 0);
-  };
-
-  const handleBackdropPress = () => {
-    if (isKeyboardVisible) {
-      Keyboard.dismiss();
-    } else {
-      onClose();
-    }
-  };
+ 
 
   return (
     <Modal
@@ -154,9 +141,7 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
             </View>
 
             {title && <Text style={styles.modalTitle}>{title}</Text>}
-
-            {children}
-
+            <View  style={styles.childrencontent}>{children}</View>
             {onConfirm && (
               <TouchableOpacity
                 style={styles.confirmButton}
@@ -182,6 +167,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  childrencontent: {
+    width: "100%",
+    height: "70%",
+    alignItems: "center",
   },
   modalContent: {
     backgroundColor: colors.white,
