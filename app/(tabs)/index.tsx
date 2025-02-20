@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Image,
   TextInput,
-} from "react-native"; 
+  ActivityIndicator,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -22,15 +23,15 @@ import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
 import ModalProduct from "../components/index/ModalProduct";
 import ModalListProducts from "../components/index/ModalListProducts";
- 
+
 export default function ProductList() {
- 
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [isModalVisible, setModalVisible] = useState<boolean>(false); //Confirtmation Modal
-  const [isModalListVisible, setModalListVisible] = useState<boolean>(false);//List Modal
+  const [isModalVisible, setModalVisible] = useState<boolean>(false);
+  const [isModalListVisible, setModalListVisible] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [order, setOrder] = useState<Order>({
     idOrder: 0,
@@ -43,50 +44,70 @@ export default function ProductList() {
 
   useEffect(() => {
     async function fetchData() {
-      const products = await getProducts();
-      setProducts(products);
-      setFilteredProducts(products);
+      try {
+        const products = await getProducts();
+        setProducts(products);
+        setFilteredProducts(products);
+      } catch (error) {
+        alert("Failed to load products. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchData();
   }, []);
 
-  const handleSearch = (text: string) => {
-    const filtered = products.filter((product) =>
-      product.name.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredProducts(filtered);
-    setSearch(text);
-  };
+  const handleSearch = useCallback(
+    (text: string) => {
+      const filtered = products.filter((product) =>
+        product.name.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredProducts(filtered);
+      setSearch(text);
+    },
+    [products]
+  );
 
-  const createOrder = () => {
-    alert("Compra generada");
-  };
-
-  const handleBuy = (product: Product) => {
+  const handleBuy = useCallback((product: Product) => {
     setSelectedProduct(product);
     setModalVisible(true);
-  };
-   const handleList = () => {
-     setModalListVisible(true);
-   };
+  }, []);
 
-  const handleConfirmPurchase = (quantity: number) => {
+const handleConfirmPurchase = useCallback(
+  (quantity: number) => {
     if (selectedProduct) {
-      const newOrderDetail: OrderDetail = {
-        idOrderDetail: 0,
-        idOrder: order.idOrder,
-        idProduct: selectedProduct.idProduct,
-        quantity: quantity,
-        subtotal: selectedProduct.price * quantity,
-        isPaid: false,
-        productName: selectedProduct.name,
-        date: new Date().toISOString(),
-        datePaid: "",
-      };
+      // find product in order details
+      const existingProductIndex = order.orderDetails.findIndex(
+        (detail) => detail.idProduct === selectedProduct.idProduct
+      );
 
-      const updatedOrderDetails = [...order.orderDetails, newOrderDetail];
-      const updatedTotal = order.total + selectedProduct.price * quantity;
+      let updatedOrderDetails = [...order.orderDetails];
+      let updatedTotal = order.total;
 
+      if (existingProductIndex !== -1) {
+        //update existing product
+        const existingDetail = updatedOrderDetails[existingProductIndex];
+        existingDetail.quantity += quantity;
+        existingDetail.subtotal += selectedProduct.price * quantity;
+        updatedTotal += selectedProduct.price * quantity;
+      } else {
+        
+        const newOrderDetail: OrderDetail = {
+          idOrderDetail: 0,
+          idOrder: order.idOrder,
+          idProduct: selectedProduct.idProduct,
+          quantity: quantity,
+          subtotal: selectedProduct.price * quantity,
+          isPaid: false,
+          productName: selectedProduct.name,
+          date: new Date().toISOString(),
+          datePaid: "",
+        };
+        updatedOrderDetails.push(newOrderDetail);
+        updatedTotal += selectedProduct.price * quantity;
+      }
+
+      // Actualizar el estado de la orden
       setOrder({
         ...order,
         orderDetails: updatedOrderDetails,
@@ -96,44 +117,60 @@ export default function ProductList() {
       setModalVisible(false);
       alert(`Agregado: ${selectedProduct.name} x ${quantity}`);
     }
-  };
-  const handleConfirmList = () => {
-    alert("Lista Verificada");
-  }
-
-  const renderItem = ({ item }: { item: Product }) => (
-    <View style={styles.item}>
-      <View style={styles.containerimg}>
-        <Image source={{ uri: item.image }} style={styles.image} />
-      </View>
-      <View style={styles.containerinfo}>
-        <View>
-          <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-            {item.name}
-          </Text>
-          <Text style={styles.price}>${item.price.toFixed(2)}</Text>
-          <Text
-            style={styles.description}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item.description}
-          </Text>
+  },
+  [selectedProduct, order]
+);
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => (
+      <View style={styles.item}>
+        <View style={styles.containerimg}>
+          <Image
+            key={item.image}
+            source={{ uri: item.image }}
+            style={styles.image}
+          />
         </View>
-        <TouchableOpacity
-          style={styles.buy}
-          onPress={() => handleBuy(item)}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.buycolor}>Comprar</Text>
-        </TouchableOpacity>
+        <View style={styles.containerinfo}>
+          <View>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+              {item.name}
+            </Text>
+            <Text style={styles.price}>${item.price.toFixed(2)}</Text>
+            <Text
+              style={styles.description}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {item.description}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.buy}
+            onPress={() => handleBuy(item)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.buycolor}>Comprar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    ),
+    [handleBuy]
   );
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => handleList()} activeOpacity={0.9}>
+      <TouchableOpacity
+        onPress={() => setModalListVisible(true)}
+        activeOpacity={0.9}
+      >
         <LinearGradient
           colors={[colors.primary, colors.secondary]}
           start={{ x: 0, y: 0 }}
@@ -161,7 +198,7 @@ export default function ProductList() {
           </View>
           <TouchableOpacity
             style={styles.createButton}
-            onPress={createOrder}
+            onPress={() => alert("Compra generada")}
             activeOpacity={0.7}
           >
             <Text style={styles.createButtonText}>Crear</Text>
@@ -197,7 +234,7 @@ export default function ProductList() {
       <ModalListProducts
         isVisible={isModalListVisible}
         onClose={() => setModalListVisible(false)}
-        onConfirm={handleConfirmList}
+        onConfirm={() => alert("Lista Verificada")}
         order={order}
       />
     </View>
@@ -211,6 +248,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: colors.whiteBack,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   infoContainer: {
     padding: 16,
     marginVertical: 10,
@@ -291,6 +334,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 10,
+    resizeMode: "cover",
   },
   containerinfo: {
     flex: 1,
