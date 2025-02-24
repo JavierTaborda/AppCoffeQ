@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  ScrollView,
 } from "react-native";
 import { colors } from "@/constants/colors";
 
@@ -107,8 +108,6 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
     outputRange: [0, 0, 1],
   });
 
- 
-
   return (
     <Modal
       animationType="fade"
@@ -134,26 +133,42 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.modalContent}
+            style={styles.keyboardAvoidingView}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
           >
             <View style={styles.dragBarContainer} {...panResponder.panHandlers}>
               <View style={styles.dragBar} />
             </View>
 
             {title && <Text style={styles.modalTitle}>{title}</Text>}
-            <View  style={styles.childrencontent}>{children}</View>
-            {onConfirm && (
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={onConfirm}
-              >
-                <Text style={styles.confirmButtonText}>{confirmText}</Text>
-              </TouchableOpacity>
-            )}
+            <ScrollView
+              style={styles.childrenContent}
+              contentContainerStyle={styles.childrenContentContainer}
+              onScrollBeginDrag={() => setIsScrolling(true)}
+              onScrollEndDrag={() => setIsScrolling(false)}
+              scrollEventThrottle={16}
+              onScroll={(event) => {
+                const { y } = event.nativeEvent.contentOffset;
+                setIsAtTop(y <= 0);
+              }}
+            >
+              {children}
+            </ScrollView>
 
-            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-              <Text style={styles.cancelButtonText}>{cancelText}</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonsContainer}>
+              {onConfirm && (
+                <TouchableOpacity
+                  style={styles.confirmButton}
+                  onPress={onConfirm}
+                >
+                  <Text style={styles.confirmButtonText}>{confirmText}</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+                <Text style={styles.cancelButtonText}>{cancelText}</Text>
+              </TouchableOpacity>
+            </View>
           </KeyboardAvoidingView>
         </Animated.View>
       </Animated.View>
@@ -168,11 +183,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  childrencontent: {
-    width: "100%",
-    height: "70%",
-    alignItems: "center",
-  },
   modalContent: {
     backgroundColor: colors.white,
     padding: 20,
@@ -180,7 +190,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     width: "100%",
     maxHeight: "80%",
-    alignItems: "center",
+  },
+  keyboardAvoidingView: {
+    width: "100%",
   },
   dragBarContainer: {
     width: "100%",
@@ -199,6 +211,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+  },
+  childrenContent: {
+    width: "100%",
+    flexGrow: 1,
+  },
+  childrenContentContainer: {
+    paddingBottom: 20,
+  },
+  buttonsContainer: {
+    width: "100%",
+    marginTop: 10,
   },
   confirmButton: {
     backgroundColor: colors.primary,

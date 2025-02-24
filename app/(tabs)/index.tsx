@@ -84,13 +84,13 @@ const handleConfirmPurchase = useCallback(
       let updatedOrderDetails = [...order.orderDetails];
       let updatedTotal = order.total;
 
-      if (existingProductIndex !== -1) {
-        //update existing product
-        const existingDetail = updatedOrderDetails[existingProductIndex];
-        existingDetail.quantity += quantity;
-        existingDetail.subtotal += selectedProduct.price * quantity;
-        updatedTotal += selectedProduct.price * quantity;
-      } else {
+      // if (existingProductIndex !== -1) {
+      //   //update existing product
+      //   const existingDetail = updatedOrderDetails[existingProductIndex];
+      //   existingDetail.quantity += quantity;
+      //   existingDetail.subtotal += selectedProduct.price * quantity;
+      //   updatedTotal += selectedProduct.price * quantity;
+      // } else {
         
         const newOrderDetail: OrderDetail = {
           idOrderDetail: 0,
@@ -105,7 +105,7 @@ const handleConfirmPurchase = useCallback(
         };
         updatedOrderDetails.push(newOrderDetail);
         updatedTotal += selectedProduct.price * quantity;
-      }
+      // }
 
       // Actualizar el estado de la orden
       setOrder({
