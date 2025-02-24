@@ -31,10 +31,13 @@ const payments: Payment[] = [
 
 const products: Product[] = [
   { idProduct: 1, name: "Café Espresso", description: "Un espresso fuerte y con sabor intenso.", price: 10.0,
-     image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/espresso.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9lc3ByZXNzby5qcGciLCJpYXQiOjE3MzgxNzYwNjAsImV4cCI6MTc2OTcxMjA2MH0.CUl8svImD5swhPHGpAd8Gqx5u0mgkH23VPw08u-DKnU", isActive: true , stock: 10 },
-  { idProduct: 2, name: "Café Capuccino", description: "Un capuccino con espuma fina y cremoso.", price: 15.0, image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/capuccino.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9jYXB1Y2Npbm8uanBnIiwiaWF0IjoxNzM4MTc1OTU0LCJleHAiOjE3Njk3MTE5NTR9.PQKZAm4FJPK4Y0T3WNrInEmNuaXG8tKtlErpit0dNUI", isActive: true , stock: 10 ,},
-  { idProduct: 3, name: "Café Latte", description: "Un latte suave y delicioso.", price: 12.0, image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/latte.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9sYXR0ZS5qcGciLCJpYXQiOjE3MzgxNzYwODAsImV4cCI6MTc2OTcxMjA4MH0.GNNaFVumhyAe8AbXGF9B0u4gG2FKEoIZZPb3_eIPxDQ", isActive: true, stock: 10 , },
-  { idProduct: 4, name: "Mocha", description: "Un mocha con chocolate y café.", price: 18.0, image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/sign/CaffeQ/product/mocha.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYWZmZVEvcHJvZHVjdC9tb2NoYS5qcGciLCJpYXQiOjE3MzgxNzYwOTIsImV4cCI6MTc2OTcxMjA5Mn0.BAF2AswfCAzG0vvaURqAJ_C4TW5xzNEC8yqvyTjzV5M", isActive: false , stock: 10 ,}
+     image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/public/CoffeQ//espresso.jpg", isActive: true , stock: 10 },
+  { idProduct: 2, name: "Café Capuccino", description: "Un capuccino con espuma fina y cremoso.", price: 15.0, 
+    image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/public/CoffeQ//capuccino.jpg", isActive: true , stock: 10 ,},
+  { idProduct: 3, name: "Café Latte", description: "Un latte suave y delicioso.", price: 12.0, 
+    image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/public/CoffeQ//latte.jpg", isActive: true, stock: 10 , },
+  { idProduct: 4, name: "Mocha", description: "Un mocha con chocolate y café.", price: 18.0, 
+    image: "https://xmqupxdpsqppwxsflhxx.supabase.co/storage/v1/object/public/CoffeQ//mocha.jpg", isActive: false , stock: 10 ,}
 ];
 
 // Funciones de API simulada

@@ -49,40 +49,42 @@ const ModalProduct: React.FC<ModalProductProps> = ({
     <ModalGeneric
       isVisible={isVisible}
       onClose={onClose}
-      onConfirm={handleConfirm} 
+      onConfirm={handleConfirm}
       title={selectedProduct?.name || "Confirmar Compra"}
       confirmText="Confirmar"
       cancelText="Cancelar"
     >
       {selectedProduct && (
         <>
-          <Image
-            source={{ uri: selectedProduct.image }}
-            style={styles.modalImage}
-          />
-          <Text style={styles.modalPrice}>
-            Precio: ${selectedProduct.price.toFixed(2)}
-          </Text>
-          <View style={styles.quantityContainer}>
-            <TouchableOpacity
-              onPress={decrementQuantity}
-              style={styles.quantityButton}
-            >
-              <Text style={styles.quantityButtonText}>-</Text>
-            </TouchableOpacity>
-            <TextInput
-              style={styles.quantityInput}
-              placeholder="Cantidad"
-              keyboardType="numeric"
-              value={quantity.toString()}
-              onChangeText={(text) => setQuantity(parseInt(text) || 0)}
+          <View style={{ alignItems: "center" }}>
+            <Image
+              source={{ uri: selectedProduct.image }}
+              style={styles.modalImage}
             />
-            <TouchableOpacity
-              onPress={incrementQuantity}
-              style={styles.quantityButton}
-            >
-              <Text style={styles.quantityButtonText}>+</Text>
-            </TouchableOpacity>
+            <Text style={styles.modalPrice}>
+              Precio: ${selectedProduct.price.toFixed(2)}
+            </Text>
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                onPress={decrementQuantity}
+                style={styles.quantityButton}
+              >
+                <Text style={styles.quantityButtonText}>-</Text>
+              </TouchableOpacity>
+              <TextInput
+                style={styles.quantityInput}
+                placeholder="Cantidad"
+                keyboardType="numeric"
+                value={quantity.toString()}
+                onChangeText={(text) => setQuantity(parseInt(text) || 0)}
+              />
+              <TouchableOpacity
+                onPress={incrementQuantity}
+                style={styles.quantityButton}
+              >
+                <Text style={styles.quantityButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </>
       )}
