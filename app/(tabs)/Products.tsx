@@ -87,6 +87,7 @@ export default function ProductsScreen() {
       )}
       <Text style={styles.productName}>{item.name}</Text>
       <Text style={styles.productDescription}>{item.description}</Text>
+      <Text style={styles.productDescription}>Stock:{item.stock}</Text>
       <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
       <View style={styles.productActions}>
         <TouchableOpacity onPress={() => setEditingProduct(item)}>
@@ -165,9 +166,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    alignItems: "center", 
   },
   productImage: {
-    width: "100%",
+    width: 150,
     height: 150,
     borderRadius: 8,
     marginBottom: 12,
