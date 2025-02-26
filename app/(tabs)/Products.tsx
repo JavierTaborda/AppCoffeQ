@@ -8,6 +8,7 @@ import {
   Alert,
   TextInput,
   Image,
+  Switch,
 } from "react-native";
 import { Product } from "@/interfaces/Product";
 import {
@@ -18,11 +19,13 @@ import {
 } from "@/services/ProductsService";
 import ProductForm from "@/app/components/products/ProductForm";
 import { colors } from "@/constants/colors";
+import Toast from "react-native-toast-message";
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
+  const [showInactive, setShowInactive] = useState<boolean>(false); // Estado para mostrar inactivos
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAdding, setIsAdding] = useState<boolean>(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -35,20 +38,44 @@ export default function ProductsScreen() {
     try {
       const products = await getProducts();
       setProducts(products);
-      setFilteredProducts(products);
+      applyFilters(products, search, showInactive);
     } catch (error) {
-      Alert.alert("Error", "Failed to load products. Please try again later.");
+      Toast.show({
+        type: "error",
+        text1: "Atención",
+        text2: "Ocurrio un error al obtener los productos.",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSearch = (text: string) => {
-    const filtered = products.filter((product) =>
-      product.name.toLowerCase().includes(text.toLowerCase())
+  const applyFilters = (
+    products: Product[],
+    searchText: string,
+    showInactive: boolean
+  ) => {
+    let filtered = products.filter((product) =>
+      product.name.toLowerCase().includes(searchText.toLowerCase())
     );
+
+    if (showInactive) {
+      filtered = filtered.filter((product) => !product.isActive);
+    } else {
+      filtered = filtered.filter((product) => product.isActive);
+    }
+
     setFilteredProducts(filtered);
+  };
+
+  const handleSearch = (text: string) => {
     setSearch(text);
+    applyFilters(products, text, showInactive);
+  };
+
+  const toggleShowInactive = () => {
+    setShowInactive(!showInactive);
+    applyFilters(products, search, !showInactive);
   };
 
   const handleAddProduct = async (product: Product) => {
@@ -57,7 +84,11 @@ export default function ProductsScreen() {
       fetchProducts();
       setIsAdding(false);
     } catch (error) {
-      Alert.alert("Error", "Failed to add product. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Atención",
+        text2: "Ocurrio un error al agregar el producto.",
+      });
     }
   };
 
@@ -67,7 +98,25 @@ export default function ProductsScreen() {
       fetchProducts();
       setEditingProduct(null);
     } catch (error) {
-      Alert.alert("Error", "Failed to update product. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Atención",
+        text2: "Ocurrio un error al editar el producto.",
+      });
+    }
+  };
+
+  const handleToggleActive = async (product: Product) => {
+    try {
+      const updatedProduct = { ...product, isActive: !product.isActive };
+      await updateProduct(updatedProduct);
+      fetchProducts();
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Atención",
+        text2: "Ocurrio un error al editar el producto.",
+      });
     }
   };
 
@@ -76,7 +125,11 @@ export default function ProductsScreen() {
       await deleteProduct(id);
       fetchProducts();
     } catch (error) {
-      Alert.alert("Error", "Failed to delete product. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Atención",
+        text2: "Ocurrio un error al eliminar el producto.",
+      });
     }
   };
 
@@ -87,14 +140,27 @@ export default function ProductsScreen() {
       )}
       <Text style={styles.productName}>{item.name}</Text>
       <Text style={styles.productDescription}>{item.description}</Text>
-      <Text style={styles.productDescription}>Stock:{item.stock}</Text>
+      <Text style={styles.productDescription}>Stock: {item.stock}</Text>
       <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
       <View style={styles.productActions}>
-        <TouchableOpacity onPress={() => setEditingProduct(item)}>
+        <TouchableOpacity
+          onPress={() => setEditingProduct(item)}
+          style={styles.actionButton}
+        >
           <Text style={styles.actionText}>Editar</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDeleteProduct(item.idProduct)}>
-          <Text style={[styles.actionText, styles.deleteText]}>Desactivar</Text>
+        <TouchableOpacity
+          onPress={() => handleToggleActive(item)}
+          style={styles.actionButton}
+        >
+          <Text
+            style={[
+              styles.actionText,
+              !item.isActive ? styles.activateText : styles.deleteText,
+            ]}
+          >
+            {item.isActive ? "Desactivar" : "Activar"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -113,12 +179,23 @@ export default function ProductsScreen() {
         />
       ) : (
         <>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar producto"
-            value={search}
-            onChangeText={handleSearch}
-          />
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Buscar producto"
+              value={search}
+              onChangeText={handleSearch}
+            />
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Inactivos</Text>
+              <Switch
+                value={showInactive}
+                onValueChange={toggleShowInactive}
+                trackColor={{ false: "#ccc", true: colors.primary }}
+                thumbColor={showInactive ? colors.primary : colors.inactive}
+              />
+            </View>
+          </View>
           <FlatList
             data={filteredProducts}
             renderItem={renderProductItem}
@@ -143,15 +220,30 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: colors.whiteBack,
   },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
   searchInput: {
+    flex: 1,
     height: 50,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 16,
-    marginBottom: 16,
     backgroundColor: "#fff",
     fontSize: 16,
+    marginRight: 10,
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  switchLabel: {
+    marginRight: 8,
+    color: colors.gray,
+    fontSize: 14,
   },
   productList: {
     paddingBottom: 16,
@@ -166,7 +258,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    alignItems: "center", 
+    alignItems: "center",
   },
   productImage: {
     width: 150,
@@ -200,8 +292,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  actionButton: {
+    marginHorizontal: 30,
+    paddingHorizontal: 10,
+  },
   deleteText: {
     color: colors.danger,
+  },
+  activateText: {
+    color: colors.primary,
   },
   addButton: {
     backgroundColor: colors.primary,
