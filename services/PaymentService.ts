@@ -12,6 +12,16 @@ export async function getPaymentOrder(idOrder:number ): Promise<Payment[]>
         return [];
     }
 } 
+export async function getPayments( ): Promise<Payment[]>
+{
+  try {
+        const response = await api.get(`/payment`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+} 
 export async function getPayment(idPayment:number ): Promise<Payment[]>
 {
   try {

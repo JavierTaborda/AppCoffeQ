@@ -4,4 +4,6 @@ export interface Payment {
     date: string;
     amount: number;
     ref: string; 
+    isApproved: boolean;
+    customerName: string;
 }

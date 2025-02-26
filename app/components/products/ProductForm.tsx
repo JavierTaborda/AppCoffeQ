@@ -118,7 +118,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           multiline
         />
 
-        <Text style={styles.label}>Precio</Text>
+        <Text style={styles.label}>Precio $</Text>
         <TextInput
           style={styles.input}
           value={price}
@@ -126,14 +126,32 @@ const ProductForm: React.FC<ProductFormProps> = ({
           placeholder="Precio del producto"
           keyboardType="numeric"
         />
+        <Text style={styles.label}>Stock</Text>
+        <TextInput
+          style={styles.input}
+          value={stock}
+          onChangeText={setStock}
+          placeholder="Stock del producto"
+          keyboardType="numeric"
+        />
 
         <Text style={styles.label}>Imagen</Text>
         <View style={styles.imagePickerContainer}>
-          <TouchableOpacity onPress={handleImagePicker} style={styles.imagePicker}>
-            <MaterialIcons name="photo-library" size={24} color={colors.primary} />
+          <TouchableOpacity
+            onPress={handleImagePicker}
+            style={styles.imagePicker}
+          >
+            <MaterialIcons
+              name="photo-library"
+              size={24}
+              color={colors.primary}
+            />
             <Text style={styles.imagePickerText}>Seleccionar</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleTakePhoto} style={styles.imagePicker}>
+          <TouchableOpacity
+            onPress={handleTakePhoto}
+            style={styles.imagePicker}
+          >
             <MaterialIcons name="camera-alt" size={24} color={colors.primary} />
             <Text style={styles.imagePickerText}>Tomar foto</Text>
           </TouchableOpacity>
@@ -144,25 +162,22 @@ const ProductForm: React.FC<ProductFormProps> = ({
           <Image source={{ uri: image }} style={styles.imagePreview} />
         ) : null}
 
-        <Text style={styles.label}>Stock</Text>
-        <TextInput
-          style={styles.input}
-          value={stock}
-          onChangeText={setStock}
-          placeholder="Stock del producto"
-          keyboardType="numeric"
-        />
-
         <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={onCancel} style={[styles.button, styles.cancelButton]}>
+          <TouchableOpacity
+            onPress={onCancel}
+            style={[styles.button, styles.cancelButton]}
+          >
             <Text style={styles.buttonText}>Cancelar</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleSubmit} style={[styles.button, styles.submitButton]}>
+          <TouchableOpacity
+            onPress={handleSubmit}
+            style={[styles.button, styles.submitButton]}
+          >
             <Text style={styles.buttonText}>Guardar</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <Toast/>
+      <Toast />
     </ScrollView>
   );
 };
