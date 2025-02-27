@@ -10,6 +10,7 @@ import {
   Switch,
   RefreshControl,
   Modal,
+  ScrollView,
 } from "react-native";
 import ModalGeneric from "../components/ModalGeneric";
 import { colors } from "@/constants/colors";
@@ -24,6 +25,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import Toast from "react-native-toast-message";
+
 
 const Payments = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -95,9 +97,9 @@ const Payments = () => {
       idPayment: editingPayment
         ? editingPayment.idPayment
         : payments.length + 1,
-      idOrder: parseInt(idOrder, 10), 
-      date: new Date().toLocaleDateString(), 
-      amount: parseFloat(paymentAmount), 
+      idOrder: parseInt(idOrder, 10),
+      date: new Date().toLocaleDateString(),
+      amount: parseFloat(paymentAmount),
       ref: paymentRef,
       isApproved: isApproved,
       customerName: customerName,
@@ -305,70 +307,72 @@ const Payments = () => {
           <ActivityIndicator size="large" color={colors.primary} />
         ) : (
           <>
-            <TextInput
-              style={styles.input}
-              placeholder="Cliente"
-              value={customerName}
-              onChangeText={setCustomerName}
-              placeholderTextColor={colors.darkGray}
-            />
-            {errors.customerName && (
-              <Text style={styles.errorText}>{errors.customerName}</Text>
-            )}
-            <TextInput
-              style={styles.input}
-              placeholder="Número de Orden"
-              value={idOrder}
-              onChangeText={setIdOrder}
-              keyboardType="numeric"
-              placeholderTextColor={colors.darkGray}
-            />
-            {errors.idOrder && (
-              <Text style={styles.errorText}>{errors.idOrder}</Text>
-            )}
+            <View style={styles.formContainer}>
+              <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.customerName && styles.errorInput,
+                  ]}
+                  placeholder="Cliente"
+                  value={customerName}
+                  onChangeText={setCustomerName}
+                  placeholderTextColor={colors.darkGray}
+                />
+                {errors.customerName && (
+                  <Text style={styles.errorText}>{errors.customerName}</Text>
+                )}
+                <TextInput
+                  style={[styles.input, errors.idOrder && styles.errorInput]}
+                  placeholder="Número de Orden"
+                  value={idOrder}
+                  onChangeText={setIdOrder}
+                  keyboardType="numeric"
+                  placeholderTextColor={colors.darkGray}
+                />
+                {errors.idOrder && (
+                  <Text style={styles.errorText}>{errors.idOrder}</Text>
+                )}
 
-            <TextInput
-              style={styles.input}
-              placeholder="Monto del Pago"
-              value={paymentAmount}
-              onChangeText={setPaymentAmount}
-              keyboardType="numeric"
-              placeholderTextColor={colors.darkGray}
-            />
-            {errors.paymentAmount && (
-              <Text style={styles.errorText}>{errors.paymentAmount}</Text>
-            )}
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.paymentAmount && styles.errorInput,
+                  ]}
+                  placeholder="Monto del Pago"
+                  value={paymentAmount}
+                  onChangeText={setPaymentAmount}
+                  keyboardType="numeric"
+                  placeholderTextColor={colors.darkGray}
+                />
+                {errors.paymentAmount && (
+                  <Text style={styles.errorText}>{errors.paymentAmount}</Text>
+                )}
 
-            <TextInput
-              style={styles.input}
-              placeholder="Referencia"
-              value={paymentRef}
-              onChangeText={setPaymentRef}
-              placeholderTextColor={colors.darkGray}
-            />
-            {errors.paymentRef && (
-              <Text style={styles.errorText}>{errors.paymentRef}</Text>
-            )}
+                <TextInput
+                  style={[styles.input, errors.paymentRef && styles.errorInput]}
+                  placeholder="Referencia"
+                  value={paymentRef}
+                  onChangeText={setPaymentRef}
+                  placeholderTextColor={colors.darkGray}
+                />
+                {errors.paymentRef && (
+                  <Text style={styles.errorText}>{errors.paymentRef}</Text>
+                )}
 
-            <TextInput
-              style={styles.input}
-              placeholder="Cliente"
-              value={customerName}
-              onChangeText={setCustomerName}
-              placeholderTextColor={colors.darkGray}
-            />
-            {errors.customerName && (
-              <Text style={styles.errorText}>{errors.customerName}</Text>
-            )}
-
-            <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>¿Aprobado?</Text>
-              <Switch
-                value={isApproved}
-                onValueChange={setIsApproved}
-                trackColor={{ false: colors.lightGray, true: colors.primary }}
-                thumbColor={isApproved ? colors.white : colors.white}
-              />
+                <View style={styles.switchContainer}>
+                  <Text style={styles.switchLabel}>¿Aprobado?</Text>
+                  <Switch
+                    value={isApproved}
+                    onValueChange={setIsApproved}
+                    trackColor={{
+                      false: colors.lightGray,
+                      true: colors.primary,
+                    }}
+                    thumbColor={isApproved ? colors.white : colors.white}
+                  />
+                </View>
+              </ScrollView>
             </View>
           </>
         )}
@@ -412,6 +416,14 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: colors.whiteBack,
   },
+  formContainer: {
+    height: "100%",
+    backgroundColor: colors.white,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingVertical: 5,
+  },
   searchInput: {
     height: 50,
     borderColor: colors.lightGray,
@@ -434,6 +446,9 @@ const styles = StyleSheet.create({
     color: colors.darkGray,
     backgroundColor: colors.lightWhite,
   },
+  errorInput: {
+    borderColor: colors.danger,
+  },
   fab: {
     position: "absolute",
     bottom: 30,
@@ -455,11 +470,9 @@ const styles = StyleSheet.create({
   },
   paymentItem: {
     backgroundColor: colors.white,
-    padding: 20,
+    padding: 10,
     borderRadius: 15,
     marginBottom: 15,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
     shadowColor: colors.darkGray,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -499,7 +512,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 0,
   },
   switchLabel: {
     fontSize: 16,
@@ -577,8 +590,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: colors.danger,
-    fontSize: 14,
-    marginBottom: 10,
+    fontSize: 10,
+    marginBottom: 2,
   },
 });
 

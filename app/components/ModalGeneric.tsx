@@ -131,45 +131,50 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
             },
           ]}
         >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.keyboardAvoidingView}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
-          >
-            <View style={styles.dragBarContainer} {...panResponder.panHandlers}>
-              <View style={styles.dragBar} />
-            </View>
-
-            {title && <Text style={styles.modalTitle}>{title}</Text>}
-            <ScrollView
-              style={styles.childrenContent}
-              contentContainerStyle={styles.childrenContentContainer}
-              onScrollBeginDrag={() => setIsScrolling(true)}
-              onScrollEndDrag={() => setIsScrolling(false)}
-              scrollEventThrottle={16}
-              onScroll={(event) => {
-                const { y } = event.nativeEvent.contentOffset;
-                setIsAtTop(y <= 0);
-              }}
+          <View style={styles.dragBarContainer} {...panResponder.panHandlers}>
+            <View style={styles.dragBar} />
+          </View>
+          <View style={styles.modalContentSecondary}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={styles.keyboardAvoidingView}
+              keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
             >
-              {children}
-            </ScrollView>
-
-            <View style={styles.buttonsContainer}>
-              {onConfirm && (
-                <TouchableOpacity
-                  style={styles.confirmButton}
-                  onPress={onConfirm}
-                >
-                  <Text style={styles.confirmButtonText}>{confirmText}</Text>
-                </TouchableOpacity>
+              {title && (
+                <Text style={styles.modalTitle} {...panResponder.panHandlers}>
+                  {title}
+                </Text>
               )}
+              <ScrollView
+                style={styles.childrenContent}
+                contentContainerStyle={styles.childrenContentContainer}
+                onScrollBeginDrag={() => setIsScrolling(true)}
+                onScrollEndDrag={() => setIsScrolling(false)}
+                scrollEventThrottle={16}
+                onScroll={(event) => {
+                  const { y } = event.nativeEvent.contentOffset;
+                  setIsAtTop(y <= 0);
+                }}
+              >
+                {children}
+              </ScrollView>
 
-              <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-                <Text style={styles.cancelButtonText}>{cancelText}</Text>
-              </TouchableOpacity>
-            </View>
-          </KeyboardAvoidingView>
+              <View style={styles.buttonsContainer}>
+                {onConfirm && (
+                  <TouchableOpacity
+                    style={styles.confirmButton}
+                    onPress={onConfirm}
+                  >
+                    <Text style={styles.confirmButtonText}>{confirmText}</Text>
+                  </TouchableOpacity>
+                )}
+
+                <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+                  <Text style={styles.cancelButtonText}>{cancelText}</Text>
+                </TouchableOpacity>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
         </Animated.View>
       </Animated.View>
     </Modal>
@@ -184,27 +189,34 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: colors.white,
-    padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     width: "100%",
-    maxHeight: "80%",
+  maxHeight: "80%",
+  },
+  modalContentSecondary: {
+    backgroundColor:  colors.white,
+    padding: 15,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    width: "100%",
+    maxHeight: "100%",
   },
   keyboardAvoidingView: {
     width: "100%",
   },
   dragBarContainer: {
     width: "100%",
+    height:50,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
-    paddingVertical: 10,
+    paddingTop: 30,
   },
   dragBar: {
-    width: 80,
+    width: 100,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#ccc",
+    backgroundColor: "#e2e2e2",
   },
   modalTitle: {
     fontSize: 20,
