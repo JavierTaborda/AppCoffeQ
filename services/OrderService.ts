@@ -20,6 +20,15 @@ export async function getOrdersCustomer(idCustomer:number ): Promise<Order[]> {
         return [];
     }
 }
+export async function getOrderRecord(Customer:string ): Promise<Order> {
+    try {
+        const response = await api.get(`/orders/record/${Customer}`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        return {} as Order;
+    }
+}
 
 
 export async function createOrder(order: Order): Promise<Order> {

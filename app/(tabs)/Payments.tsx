@@ -25,7 +25,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import Toast from "react-native-toast-message";
-
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const Payments = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -44,6 +44,11 @@ const Payments = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [isStartDatePickerVisible, setStartDatePickerVisibility] =
+    useState(false);
+  const [isEndDatePickerVisible, setEndDatePickerVisibility] = useState(false);
 
   useEffect(() => {
     loadPayments();
@@ -51,7 +56,7 @@ const Payments = () => {
 
   useEffect(() => {
     filterPayments();
-  }, [searchQuery, payments]);
+  }, [searchQuery, payments, startDate, endDate]);
 
   const loadPayments = async () => {
     setIsLoading(true);
@@ -72,9 +77,15 @@ const Payments = () => {
   };
 
   const filterPayments = () => {
-    const filtered = payments.filter((payment) =>
-      payment.ref?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filtered = payments.filter((payment) => {
+      const paymentDate = new Date(payment.date);
+      const matchesSearch = payment.ref
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesDateRange =
+        paymentDate >= startDate && paymentDate <= endDate;
+      return matchesSearch && matchesDateRange;
+    });
     setFilteredPayments(filtered);
   };
 
@@ -98,7 +109,7 @@ const Payments = () => {
         ? editingPayment.idPayment
         : payments.length + 1,
       idOrder: parseInt(idOrder, 10),
-      date: new Date().toLocaleDateString(),
+      date: new Date().toISOString().split("T")[0], //  YYYY-MM-DD
       amount: parseFloat(paymentAmount),
       ref: paymentRef,
       isApproved: isApproved,
@@ -242,23 +253,61 @@ const Payments = () => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Buscar por referencia"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholderTextColor={colors.lightWhite}
+
+      <View style={styles.filterContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar por referencia"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor={colors.lightWhite}
+        />
+        <View style={styles.dateFilterContainer}>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setStartDatePickerVisibility(true)}
+          >
+            <Ionicons name="calendar" size={20} color={colors.primary} />
+            <Text style={styles.dateButtonText}>
+              Inicio: {startDate.toLocaleDateString()}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setEndDatePickerVisibility(true)}
+          >
+            <Ionicons name="calendar" size={20} color={colors.primary} />
+            <Text style={styles.dateButtonText}>
+              Fin: {endDate.toLocaleDateString()}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+
+      <DateTimePickerModal
+        isVisible={isStartDatePickerVisible}
+        mode="date"
+        onConfirm={(date) => {
+          setStartDate(date);
+          setStartDatePickerVisibility(false);
+        }}
+        onCancel={() => setStartDatePickerVisibility(false)}
+      />
+      <DateTimePickerModal
+        isVisible={isEndDatePickerVisible}
+        mode="date"
+        onConfirm={(date) => {
+          setEndDate(date);
+          setEndDatePickerVisibility(false);
+        }}
+        onCancel={() => setEndDatePickerVisibility(false)}
       />
 
+   
       {isLoading ? (
-        <View>
-          {[...Array(5)].map((_, index) => (
-            <View key={index} style={styles.skeletonItem}>
-              <View style={styles.skeletonLine} />
-              <View style={styles.skeletonLine} />
-              <View style={styles.skeletonLine} />
-            </View>
-          ))}
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -281,6 +330,7 @@ const Payments = () => {
         />
       )}
 
+    
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
         style={styles.fab}
@@ -288,6 +338,7 @@ const Payments = () => {
         <Ionicons name="add" size={30} color={colors.white} />
       </TouchableOpacity>
 
+   
       <ModalGeneric
         isVisible={isModalVisible}
         onClose={() => {
@@ -370,14 +421,15 @@ const Payments = () => {
                       true: colors.primary,
                     }}
                     thumbColor={isApproved ? colors.white : colors.white}
-                  /> 
+                  />
                 </View>
-              </ScrollView>   
+              </ScrollView>
             </View>
           </>
         )}
       </ModalGeneric>
 
+      {/* Modal de Confirmación de Eliminación */}
       <Modal
         transparent={true}
         animationType="fade"
@@ -413,16 +465,11 @@ const Payments = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
     backgroundColor: colors.whiteBack,
   },
-  formContainer: {
-    height: "100%",
-    backgroundColor: colors.white,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    paddingVertical: 5,
+  filterContainer: {
+    marginBottom: 16,
   },
   searchInput: {
     height: 50,
@@ -430,59 +477,53 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 15,
     paddingHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 16,
     fontSize: 16,
     color: colors.darkGray,
     backgroundColor: colors.lightWhite,
   },
-  input: {
-    height: 50,
-    borderColor: colors.lightGray,
-    borderWidth: 1,
-    borderRadius: 15,
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    fontSize: 16,
-    color: colors.darkGray,
-    backgroundColor: colors.lightWhite,
+  dateFilterContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  errorInput: {
-    borderColor: colors.danger,
-  },
-  fab: {
-    position: "absolute",
-    bottom: 30,
-    right: 30,
-    backgroundColor: colors.primary,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  dateButton: {
+    flex: 1,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: colors.darkGray,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    marginHorizontal: 5,
+    padding: 10,
+    backgroundColor: colors.lightWhite,
+    borderRadius: 15,
+  },
+  dateButtonText: {
+    marginLeft: 8,
+    color: colors.darkGray,
+    fontSize: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   paymentList: {
     flexGrow: 1,
   },
   paymentItem: {
     backgroundColor: colors.white,
-    padding: 10,
+    padding: 16,
     borderRadius: 15,
-    marginBottom: 15,
+    marginBottom: 12,
     shadowColor: colors.darkGray,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 3,
   },
   paymentText: {
     fontSize: 16,
     color: colors.darkGray,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   actions: {
     flexDirection: "row",
@@ -522,19 +563,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
-  },
-  skeletonItem: {
-    backgroundColor: colors.lightGray,
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 15,
-  },
-  skeletonLine: {
-    backgroundColor: colors.white,
-    height: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    width: "80%",
   },
   modalOverlay: {
     flex: 1,
@@ -592,6 +620,47 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 10,
     marginBottom: 2,
+  },
+  fab: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
+    backgroundColor: colors.primary,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.darkGray,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  formContainer: {
+    flex: 1,
+    padding: 16,
+  },
+
+  scrollContainer: {
+    flexGrow: 1,
+  },
+
+  input: {
+    height: 50,
+    borderColor: colors.lightGray,
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    fontSize: 16,
+    color: colors.darkGray,
+    backgroundColor: colors.lightWhite,
+  },
+
+
+  errorInput: {
+    borderColor: colors.danger, 
   },
 });
 

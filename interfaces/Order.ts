@@ -5,5 +5,5 @@ export interface Order {
     date: string;
     total: number;
     customerName: string;
-    orderDetails: OrderDetail[];
+    orderDetailsDTO: OrderDetail[];
 }
