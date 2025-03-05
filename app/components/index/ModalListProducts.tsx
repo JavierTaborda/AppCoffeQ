@@ -103,13 +103,14 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
         </View>
       </Modal>
 
+      {/* Modal de Confirmación */}
       <Modal
         transparent={true}
         animationType="fade"
         visible={showConfirmation}
         onRequestClose={() => setShowConfirmation(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View style={[styles.modalOverlay, { zIndex: 9999 }]}>
           <View style={styles.confirmationModal}>
             <Text style={styles.confirmationText}>
               ¿Estás seguro de que deseas eliminar esta orden?

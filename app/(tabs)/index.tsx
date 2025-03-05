@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -166,7 +167,7 @@ const handleConfirmPurchase = useCallback(
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <TouchableOpacity
         onPress={() => setModalListVisible(true)}
         activeOpacity={0.9}
@@ -237,14 +238,13 @@ const handleConfirmPurchase = useCallback(
         onDelete={() => setOrder({ ...order, orderDetails: [], total: 0 })}
         order={order}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
     paddingHorizontal: 10,
     backgroundColor: colors.whiteBack,
   },

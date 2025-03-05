@@ -370,9 +370,9 @@ const Payments = () => {
                       true: colors.primary,
                     }}
                     thumbColor={isApproved ? colors.white : colors.white}
-                  />
+                  /> 
                 </View>
-              </ScrollView>
+              </ScrollView>   
             </View>
           </>
         )}
