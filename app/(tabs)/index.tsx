@@ -40,7 +40,7 @@ export default function ProductList() {
     date: new Date().toISOString(),
     total: 0,
     customerName: "",
-    orderDetails: [],
+    orderDetailsDTO: [],
   });
 
   useEffect(() => {
@@ -78,16 +78,16 @@ const handleConfirmPurchase = useCallback(
   (quantity: number) => {
     if (selectedProduct) {
       // find product in order details
-      const existingProductIndex = order.orderDetails.findIndex(
+      const existingProductIndex = order.orderDetailsDTO.findIndex(
         (detail) => detail.idProduct === selectedProduct.idProduct
       );
 
-      let updatedOrderDetails = [...order.orderDetails];
+      let updatedorderDetailsDTO = [...order.orderDetailsDTO];
       let updatedTotal = order.total;
 
       if (existingProductIndex !== -1) {
         //update existing product
-        const existingDetail = updatedOrderDetails[existingProductIndex];
+        const existingDetail = updatedorderDetailsDTO[existingProductIndex];
         existingDetail.quantity += quantity;
         existingDetail.subtotal += selectedProduct.price * quantity;
         updatedTotal += selectedProduct.price * quantity;
@@ -104,14 +104,14 @@ const handleConfirmPurchase = useCallback(
           date: new Date().toISOString(),
           datePaid: "",
         };
-        updatedOrderDetails.push(newOrderDetail);
+        updatedorderDetailsDTO.push(newOrderDetail);
         updatedTotal += selectedProduct.price * quantity;
       }
 
       // update order state
       setOrder({
         ...order,
-        orderDetails: updatedOrderDetails,
+        orderDetailsDTO: updatedorderDetailsDTO,
         total: updatedTotal,
       });
 
@@ -185,7 +185,12 @@ const handleConfirmPurchase = useCallback(
                 size={24}
                 color={colors.white}
               />
-              <Text style={styles.infoText}>{order.orderDetails.length}</Text>
+              <Text style={styles.infoText}>
+                {order && order.orderDetailsDTO
+                  ? order.orderDetailsDTO.length
+                  : 0}
+              </Text>
+
               <Text style={styles.infoLabel}>Productos</Text>
             </View>
             <View style={styles.infoSection}>
@@ -235,7 +240,15 @@ const handleConfirmPurchase = useCallback(
       <ModalListProducts
         isVisible={isModalListVisible}
         onClose={() => setModalListVisible(false)}
-        onDelete={() => setOrder({ ...order, orderDetails: [], total: 0 })}
+        onDelete={() => {
+          if (order.orderDetailsDTO) {
+            setOrder({
+              ...order,
+              orderDetailsDTO: [],
+              total: 0,
+            });
+          }
+        }}
         order={order}
       />
     </SafeAreaView>

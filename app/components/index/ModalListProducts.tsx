@@ -18,7 +18,7 @@ interface ModalProductProps {
   order: Order | null;
 }
 
-interface OrderDetails {
+interface orderDetailsDTO {
   productName: string;
   subtotal: number;
   quantity: number;
@@ -47,7 +47,7 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
     });
   };
 
-  const renderProductCard = ({ item }: { item: OrderDetails }) => (
+  const renderProductCard = ({ item }: { item: orderDetailsDTO }) => (
     <View style={styles.productCard}>
       <Text style={styles.productName}>{item.productName}</Text>
       <Text style={styles.productPrice}>
@@ -69,10 +69,10 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Detalles de Compra</Text>
             <View style={styles.modalContent}>
-              {order?.orderDetails.length ? (
+              {order?.orderDetailsDTO.length ? (
                 <>
                   <FlatList
-                    data={order.orderDetails}
+                    data={order.orderDetailsDTO}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={renderProductCard}
                     contentContainerStyle={styles.productList}
@@ -90,7 +90,7 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
                 <Text style={styles.actionText}>Aceptar</Text>
               </TouchableOpacity>
 
-              {order?.orderDetails.length ? (
+              {order?.orderDetailsDTO.length ? (
                 <TouchableOpacity
                   onPress={handleDelete}
                   style={styles.deleteButton}
