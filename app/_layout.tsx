@@ -17,10 +17,11 @@ export default function RootLayout() {
   return (
     <>
       <Stack>
+        <Stack.Screen name="auth/signIn" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
       <Toast />
-      {session && (
+      {typeof window !== "undefined" && session && (
         <Button title="Sign Out" onPress={signOut} />
       )}
     </>

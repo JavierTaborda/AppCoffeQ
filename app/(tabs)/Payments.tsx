@@ -515,10 +515,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 15,
     marginBottom: 12,
-    shadowColor: colors.darkGray,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+
     elevation: 3,
   },
   paymentText: {
@@ -632,10 +630,8 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: colors.darkGray,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+
     elevation: 5,
   },
   formContainer: {
@@ -659,9 +655,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightWhite,
   },
 
-
   errorInput: {
-    borderColor: colors.danger, 
+    borderColor: colors.danger,
   },
 });
 
