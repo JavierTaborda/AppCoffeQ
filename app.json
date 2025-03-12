@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Coffe-Q",
-    "slug": "Coffe-Q",
+    "slug": "appcoffeq",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -34,10 +34,18 @@
         }
       ],
       "expo-font"
-
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2abc8a4e-e482-4600-8fe7-04f26512fcb5"
+      }
+    },
+    "owner": "jtabordameruq"
   }
 }

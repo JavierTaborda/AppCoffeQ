@@ -35,18 +35,24 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   signInWithGoogle: async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
       });
       if (error) throw error;
 
-      supabase.auth.onAuthStateChange((_event, session) => {
-        if (session) {
-          set({ session, role: session.user?.user_metadata?.role });
-        }
+     
+      return new Promise((resolve, reject) => {
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (session) {
+            const role = session.user?.user_metadata?.role || "user";
+            set({ session, role }); 
+            subscription.unsubscribe(); 
+            resolve(session); 
+          }
+        });
       });
-
-      return data;
     } catch (error) {
       console.error("Error signing in with Google:", error);
       throw new Error("Failed to sign in with Google.");
@@ -99,10 +105,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data, error } = await supabase.auth.getSession();
       if (error) throw error;
       if (data.session) {
-        set({
-          session: data.session,
-          role: data.session.user?.user_metadata?.role,
-        });
+        const role = data.session.user?.user_metadata?.role || "user";
+        set({ session: data.session, role });
       }
     } catch (error) {
       console.error("Error checking session:", error);

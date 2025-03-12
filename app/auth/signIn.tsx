@@ -13,6 +13,7 @@ import Toast from "react-native-toast-message";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/services/supabase";
 
 const SignIn = () => {
   const { signIn, signInWithGoogle } = useAuthStore();
@@ -46,18 +47,20 @@ const SignIn = () => {
     }
   };
 
-  const handleSignInWithGoogle = async () => {
-    try {
-      await signInWithGoogle();
-      router.replace("/");
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error instanceof Error ? error.message : "Ocurrió un error",
-      });
+const handleSignInWithGoogle = async () => {
+  try {
+    const session = await signInWithGoogle(); 
+    if (session) {
+      router.replace("/"); 
     }
-  };
+  } catch (error) {
+    Toast.show({
+      type: "error",
+      text1: "Error",
+      text2: error instanceof Error ? error.message : "Ocurrió un error",
+    });
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -105,17 +108,18 @@ const SignIn = () => {
       <TouchableOpacity style={styles.button} onPress={handleSignIn}>
         <Text style={styles.buttonText}>Iniciar Sesión</Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.googleButton}
         onPress={handleSignInWithGoogle}
       >
         <Image
-          source={require("@/assets/images/logowhite.png")}
+          source={require("@/assets/images/google.png")}
           style={styles.googleIcon}
         />
+        
         <Text style={styles.googleButtonText}>Iniciar Sesión con Google</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push("/")}>
+      </TouchableOpacity> */}
+      <TouchableOpacity onPress={() => router.push("/auth/signUp")}>
         <Text style={styles.linkText}>¿No tienes una cuenta? Regístrate</Text>
       </TouchableOpacity>
     </SafeAreaView>
