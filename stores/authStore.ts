@@ -1,4 +1,4 @@
-import {create} from "zustand";
+import { create } from "zustand";
 import { supabase } from "@/services/supabase";
 
 type AuthState = {
@@ -31,17 +31,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
     if (error) throw error;
 
-    // Escucha los cambios en el estado de autenticación
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         set({ session, role: session.user?.user_metadata?.role });
       }
     });
-
-    // Limpia la suscripción cuando ya no sea necesaria
-    return () => subscription.unsubscribe();
   },
 
   signOut: async () => {

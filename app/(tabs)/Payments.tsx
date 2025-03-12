@@ -27,6 +27,7 @@ import * as Animatable from "react-native-animatable";
 import Toast from "react-native-toast-message";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
+
 const Payments = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
