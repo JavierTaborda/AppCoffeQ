@@ -36,11 +36,7 @@ const History: React.FC = () => {
     try {
       const order = await getOrderRecord("26804112"); // Devuelve un solo objeto
       setOrderCustomer(order);
-      Toast.show({
-        type: "success",
-        text1: "Éxito",
-        text2: "Pedido cargado correctamente.",
-      });
+      
     } catch (error) {
       console.error(error);
       setError("Error al cargar el pedido. Inténtalo de nuevo más tarde.");
@@ -64,10 +60,7 @@ const History: React.FC = () => {
   const renderOrderDetailItem = ({ item }: { item: OrderDetail }) => (
     <View style={styles.detailCard}>
       
-      {/* <Image
-        source={{ uri: "https://via.placeholder.com/100" }}
-        style={styles.detailImage}
-      /> */}
+ 
       <View style={styles.detailContent}>
         <Text style={styles.detailTitle}>
           {item.productName || "Producto sin nombre"}
@@ -143,7 +136,7 @@ const History: React.FC = () => {
       <Text style={styles.title}>Todos tus consumos</Text>
       {orderCustomer ? (
         <FlatList
-          data={[orderCustomer]} // Envuelve el objeto en un array
+          data={[orderCustomer]} 
           renderItem={({ item }) => renderOrderItem(item)}
           keyExtractor={(item) => item.idOrder.toString()}
           refreshControl={

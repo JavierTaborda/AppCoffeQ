@@ -11,13 +11,13 @@ export async function getCustomers(): Promise<Customer[]> {
     }
 }
 
-export async function getCustomer(idCustomer:number ): Promise<Customer[]> {
+export async function getCustomer(text:string ): Promise<Customer> {
     try {
-        const response = await api.get(`/customer/${idCustomer}`);
+        const response = await api.get(`/customer/${text}`);
         return response.data;
     } catch (error) {
         console.error(error);
-        return [];
+        return {} as Customer;
     }
 }
 export async function createCustomer(customer: Customer): Promise<Customer> {

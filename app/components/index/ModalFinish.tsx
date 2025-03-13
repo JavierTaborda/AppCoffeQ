@@ -2,18 +2,24 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  FlatList,
   TouchableOpacity,
   StyleSheet,
   Modal,
   ActivityIndicator,
+  TextInput,
+  Animated,
+  Dimensions,
+  Image,
 } from "react-native";
 import { Customer } from "@/interfaces/Customer";
 import { Order } from "@/interfaces/Order";
 import { createOrder } from "@/services/OrderService";
-import { getCustomers } from "@/services/CustomerService";
+import { getCustomer } from "@/services/CustomerService";
 import { colors } from "@/constants/colors";
 import Toast from "react-native-toast-message";
+import { Ionicons } from "@expo/vector-icons";
+
+const { height } = Dimensions.get("window");
 
 interface ModalFinishProps {
   isVisible: boolean;
@@ -26,30 +32,84 @@ const ModalFinish: React.FC<ModalFinishProps> = ({
   onClose,
   order,
 }) => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(isVisible);
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const slideAnim = useState(new Animated.Value(height))[0];
+  const [showCustomerCard, setShowCustomerCard] = useState(false);
 
- 
   useEffect(() => {
     if (isVisible) {
-      fetchCustomers();
+      setModalVisible(true);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: height,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setModalVisible(false);
+        setSelectedCustomer(null);
+        setShowCustomerCard(false);
+      });
     }
   }, [isVisible]);
 
-  const fetchCustomers = async () => {
+  const handleSearchCustomer = async () => {
+    if (!searchQuery.trim()) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Ingresa una cédula o correo para buscar.",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const customers = await getCustomers();
-      setCustomers(customers);
+      const customer = await getCustomer(searchQuery.trim());
+      if (customer) {
+        setSelectedCustomer(customer);
+        setShowCustomerCard(true);
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "No se encontró un cliente con esa cédula o correo.",
+        });
+        setSelectedCustomer(null);
+        setShowCustomerCard(false);
+      }
     } catch (error) {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "No se pudo cargar la lista de clientes.",
+        text2: "Hubo un problema al buscar el cliente.",
       });
+      setSelectedCustomer(null);
+      setShowCustomerCard(false);
     } finally {
       setIsLoading(false);
     }
@@ -67,24 +127,20 @@ const ModalFinish: React.FC<ModalFinishProps> = ({
 
     setIsLoading(true);
     try {
-      
       const orderWithCustomer: Order = {
         ...order,
         idCustomer: selectedCustomer.idCustomer,
         customerName: selectedCustomer.name,
       };
 
-   
       const createdOrder = await createOrder(orderWithCustomer);
       if (createdOrder.idOrder) {
-      
-      Toast.show({
-        type: "success",
-        text1: "Éxito",
-        text2: "Pedido confirmado correctamente.",
-      });
-    }
-      
+        Toast.show({
+          type: "success",
+          text1: "Éxito",
+          text2: "Pedido confirmado correctamente.",
+        });
+      }
     } catch (error) {
       Toast.show({
         type: "error",
@@ -93,60 +149,77 @@ const ModalFinish: React.FC<ModalFinishProps> = ({
       });
     } finally {
       setIsLoading(false);
-      onClose(); 
+      onClose();
     }
   };
-
-  const renderCustomerItem = ({ item }: { item: Customer }) => (
-    <TouchableOpacity
-      style={[
-        styles.customerItem,
-        selectedCustomer?.idCustomer === item.idCustomer &&
-          styles.selectedCustomerItem,
-      ]}
-      onPress={() => setSelectedCustomer(item)}
-    >
-      <Text style={styles.customerName}>{item.name}</Text>
-      <Text style={styles.customerEmail}>{item.email}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <Modal
       transparent={true}
-      animationType="slide"
-      visible={isVisible}
+      animationType="none"
+      visible={modalVisible}
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Selecciona un cliente</Text>
-          {isLoading ? (
-            <ActivityIndicator size="large" color={colors.primary} />
-          ) : (
-            <>
-              <FlatList
-                data={customers}
-                renderItem={renderCustomerItem}
-                keyExtractor={(item) => item.idCustomer.toString()}
-                contentContainerStyle={styles.customerList}
-              />
-              <View style={styles.actions}>
-                <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-                  <Text style={styles.buttonText}>Cancelar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.confirmButton}
-                  onPress={handleConfirmOrder}
-                  disabled={!selectedCustomer}
-                >
-                  <Text style={styles.buttonText}>Confirmar</Text>
-                </TouchableOpacity>
+      <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            { transform: [{ translateY: slideAnim }] },
+          ]}
+        >
+          <Text style={styles.modalTitle}>Buscar Cliente</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Ingresa cédula o correo..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor={colors.gray}
+            autoCapitalize="none"
+            keyboardType="default"
+          />
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={handleSearchCustomer}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              <View style={styles.searchButtonContent}>
+                <Ionicons name="search" size={20} color={colors.white} />
+                <Text style={styles.searchButtonText}>Buscar Cliente</Text>
               </View>
-            </>
+            )}
+          </TouchableOpacity>
+
+          {showCustomerCard && selectedCustomer && (
+            <Animated.View style={[styles.customerCard, { opacity: fadeAnim }]}>
+              <Image
+                source={{ uri: "https://via.placeholder.com/100" }} // Usa una imagen real del cliente
+                style={styles.customerImage}
+              />
+              <Text style={styles.customerName}>{selectedCustomer.name}</Text>
+              <Text style={styles.customerEmail}>{selectedCustomer.email}</Text>
+              <Text style={styles.customerCedula}>
+                Cédula: {selectedCustomer.cedula}
+              </Text>
+            </Animated.View>
           )}
-        </View>
-      </View>
+
+          <View style={styles.actions}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.confirmButton}
+              onPress={handleConfirmOrder}
+              disabled={!selectedCustomer}
+            >
+              <Text style={styles.buttonText}>Confirmar</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 };
@@ -163,32 +236,71 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 16,
     padding: 20,
-    maxHeight: "80%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     color: colors.darkGray,
     marginBottom: 16,
     textAlign: "center",
   },
-  customerList: {
-    flexGrow: 1,
+  searchInput: {
+    height: 50,
+    borderColor: colors.lightGray,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 16,
+    color: colors.darkGray,
+    fontSize: 16,
   },
-  customerItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.lightGray,
+  searchButton: {
+    backgroundColor: colors.primary,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 16,
   },
-  selectedCustomerItem: {
+  searchButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  searchButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  customerCard: {
     backgroundColor: colors.lightWhite,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  customerImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 10,
   },
   customerName: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 18,
+    fontWeight: "bold",
     color: colors.darkGray,
+    marginBottom: 8,
   },
   customerEmail: {
+    fontSize: 14,
+    color: colors.gray,
+    marginBottom: 4,
+  },
+  customerCedula: {
     fontSize: 14,
     color: colors.gray,
   },
