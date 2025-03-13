@@ -133,7 +133,7 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
         </View>
       </Modal>
 
-      <Toast />
+
     </>
   );
 };

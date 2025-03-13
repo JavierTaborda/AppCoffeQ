@@ -7,5 +7,5 @@ export interface OrderDetail {
     isPaid: boolean;
     productName: string;
     date: string;
-    datePaid: string;
+    datePaid?: string;
 }

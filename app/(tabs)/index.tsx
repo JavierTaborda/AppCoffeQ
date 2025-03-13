@@ -24,6 +24,10 @@ import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
 import ModalProduct from "../components/index/ModalProduct";
 import ModalListProducts from "../components/index/ModalListProducts";
+import ModalFinish from "../components/index/ModalFinish";
+import Toast from "react-native-toast-message";
+
+
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,6 +37,7 @@ export default function ProductList() {
   const [isModalListVisible, setModalListVisible] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isModalFinishVisible, setModalFinishVisible] = useState<boolean>(false); 
 
   const [order, setOrder] = useState<Order>({
     idOrder: 0,
@@ -50,7 +55,11 @@ export default function ProductList() {
         setProducts(products);
         setFilteredProducts(products);
       } catch (error) {
-        alert("Failed to load products. Please try again later.");
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "No se pudo cargar la lista de productos. ",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -74,53 +83,69 @@ export default function ProductList() {
     setModalVisible(true);
   }, []);
 
-const handleConfirmPurchase = useCallback(
-  (quantity: number) => {
-    if (selectedProduct) {
-      // find product in order details
-      const existingProductIndex = order.orderDetailsDTO.findIndex(
-        (detail) => detail.idProduct === selectedProduct.idProduct
-      );
+  const handleConfirmPurchase = useCallback(
+    (quantity: number) => {
+      if (selectedProduct) {
+        // find product in order details
+        const existingProductIndex = order.orderDetailsDTO.findIndex(
+          (detail) => detail.idProduct === selectedProduct.idProduct
+        );
 
-      let updatedorderDetailsDTO = [...order.orderDetailsDTO];
-      let updatedTotal = order.total;
+        let updatedorderDetailsDTO = [...order.orderDetailsDTO];
+        let updatedTotal = order.total;
 
-      if (existingProductIndex !== -1) {
-        //update existing product
-        const existingDetail = updatedorderDetailsDTO[existingProductIndex];
-        existingDetail.quantity += quantity;
-        existingDetail.subtotal += selectedProduct.price * quantity;
-        updatedTotal += selectedProduct.price * quantity;
-      } else {
-        
-        const newOrderDetail: OrderDetail = {
-          idOrderDetail: 0,
-          idOrder: order.idOrder,
-          idProduct: selectedProduct.idProduct,
-          quantity: quantity,
-          subtotal: selectedProduct.price * quantity,
-          isPaid: false,
-          productName: selectedProduct.name,
-          date: new Date().toISOString(),
-          datePaid: "",
-        };
-        updatedorderDetailsDTO.push(newOrderDetail);
-        updatedTotal += selectedProduct.price * quantity;
+        if (existingProductIndex !== -1) {
+          //update existing product
+          const existingDetail = updatedorderDetailsDTO[existingProductIndex];
+          existingDetail.quantity += quantity;
+          existingDetail.subtotal += selectedProduct.price * quantity;
+          updatedTotal += selectedProduct.price * quantity;
+        } else {
+          const newOrderDetail: OrderDetail = {
+            idOrderDetail: 0,
+            idOrder: order.idOrder,
+            idProduct: selectedProduct.idProduct,
+            quantity: quantity,
+            subtotal: selectedProduct.price * quantity,
+            isPaid: false,
+            productName: selectedProduct.name,
+            date: new Date().toISOString(),
+            datePaid: undefined,
+          };
+          updatedorderDetailsDTO.push(newOrderDetail);
+          updatedTotal += selectedProduct.price * quantity;
+        }
+
+        // update order state
+        setOrder({
+          ...order,
+          orderDetailsDTO: updatedorderDetailsDTO,
+          total: updatedTotal,
+        });
+
+        setModalVisible(false);
+        Toast.show({
+          type: "success",
+          text1: "Producto agregado",
+          text2: `${selectedProduct.name} x ${quantity}`,
+        });
       }
+    },
+    [selectedProduct, order]
+  );
 
-      // update order state
-      setOrder({
-        ...order,
-        orderDetailsDTO: updatedorderDetailsDTO,
-        total: updatedTotal,
+   const handleFinishOrder = () => {
+     if (order.orderDetailsDTO.length === 0) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "No hay productos en la orden.",
       });
+       return;
+     }
+     setModalFinishVisible(true); 
+   };
 
-      setModalVisible(false);
-      alert(`Agregado: ${selectedProduct.name} x ${quantity}`);
-    }
-  },
-  [selectedProduct, order]
-);
   const renderItem = useCallback(
     ({ item }: { item: Product }) => (
       <View style={styles.item}>
@@ -204,7 +229,7 @@ const handleConfirmPurchase = useCallback(
           </View>
           <TouchableOpacity
             style={styles.createButton}
-            onPress={() => alert("Compra generada")}
+            onPress={() => handleFinishOrder()}
             activeOpacity={0.7}
           >
             <Text style={styles.createButtonText}>Crear</Text>
@@ -251,6 +276,12 @@ const handleConfirmPurchase = useCallback(
         }}
         order={order}
       />
+      <ModalFinish
+        isVisible={isModalFinishVisible}
+        onClose={() => setModalFinishVisible(false)}
+        order={order}
+      />
+
     </SafeAreaView>
   );
 }

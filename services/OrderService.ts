@@ -22,6 +22,7 @@ export async function getOrdersCustomer(idCustomer:number ): Promise<Order[]> {
 }
 export async function getOrderRecord(Customer:string ): Promise<Order> {
     try {
+        
         const response = await api.get(`/orders/record/${Customer}`);
         return response.data;
     } catch (error) {
@@ -33,11 +34,12 @@ export async function getOrderRecord(Customer:string ): Promise<Order> {
 
 export async function createOrder(order: Order): Promise<Order> {
     try {
-        const response = await api.post('/orders', order);
-        return response.data;
-    } catch (error) {
-        console.error(error);
-        return {} as Order;
+        console.log(order);
+      const response = await api.post("/orders", order);
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error("Error al crear la orden. " + error.response?.data.error || error.message);
     }
 }
 

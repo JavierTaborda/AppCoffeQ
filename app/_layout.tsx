@@ -3,6 +3,7 @@ import { Stack, useRouter } from "expo-router";
 import { useAuthStore } from "@/stores/authStore";
 import { useEffect } from "react";
 import { Button } from "react-native";
+import { toastConfig } from "@/config/toastConfig";
 export default function RootLayout() {
   const { session, checkSession, signOut } = useAuthStore();
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function RootLayout() {
         <Stack.Screen name="auth/signUp" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
-      <Toast />
+      <Toast config={toastConfig} />
       {typeof window !== "undefined" && session && (
         <Button title="Sign Out" onPress={signOut} />
       )}
