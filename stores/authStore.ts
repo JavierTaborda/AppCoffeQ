@@ -6,6 +6,7 @@ type AuthState = {
   session: any;
   role: string | null;
   jwt: string | null;
+  loading: boolean;
   signIn: (email: string, password: string) => Promise<any>;
   signInWithGoogle: () => Promise<any>;
   signOut: () => Promise<void>;
@@ -13,14 +14,14 @@ type AuthState = {
   resetPassword: (email: string) => Promise<boolean>;
   checkSession: () => Promise<void>;
   setRole: (role: string) => void;
-  setJwt: (jwt: string) => void; 
+  setJwt: (jwt: string) => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
   session: null,
   role: null,
-  jwt: null, 
-
+  jwt: null,
+  loading: true,
   signIn: async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -30,9 +31,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (error) throw error;
 
       const role = data.session?.user?.user_metadata?.role || "user";
-      const jwt = data.session?.access_token; 
-      set({ session: data.session, role, jwt }); 
-      await AsyncStorage.setItem("jwt", jwt); 
+      const jwt = data.session?.access_token;
+      set({ session: data.session, role, jwt, loading: false });
+      await AsyncStorage.setItem("jwt", jwt);
       return data;
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
@@ -55,9 +56,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         } = supabase.auth.onAuthStateChange((_event, session) => {
           if (session) {
             const role = session.user?.user_metadata?.role || "user";
-            const jwt = session.access_token; 
-            set({ session, role, jwt }); 
-            AsyncStorage.setItem("jwt", jwt); 
+            const jwt = session.access_token;
+            set({ session, role, jwt });
+            AsyncStorage.setItem("jwt", jwt);
             subscription.unsubscribe();
             resolve(session);
           }
@@ -72,8 +73,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     try {
       await supabase.auth.signOut();
-      set({ session: null, role: null, jwt: null }); 
-      await AsyncStorage.removeItem("jwt"); 
+      set({ session: null, role: null, jwt: null });
+      await AsyncStorage.removeItem("jwt");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
       throw new Error("Error al cerrar sesión.");
@@ -96,6 +97,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: { data: { role: "user" } },
       });
       if (error) throw error;
       return data;
@@ -124,12 +126,15 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (error) throw error;
       if (data.session) {
         const role = data.session.user?.user_metadata?.role || "user";
-        const jwt = data.session.access_token; 
-        set({ session: data.session, role, jwt }); 
-        await AsyncStorage.setItem("jwt", jwt); 
+        const jwt = data.session.access_token;
+        set({ session: data.session, role, jwt, loading: false }); 
+        await AsyncStorage.setItem("jwt", jwt);
+      } else {
+        set({ loading: false }); 
       }
     } catch (error) {
       console.error("Error al verificar la sesión:", error);
+      set({ loading: false }); 
     }
   },
 
@@ -142,7 +147,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setJwt: (jwt: string) => {
-    set({ jwt }); 
+    set({ jwt });
   },
 }));
 

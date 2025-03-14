@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const forgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { resetPassword } = useAuthStore();
 
@@ -34,6 +35,7 @@ const forgotPassword = () => {
       return;
     }
     try {
+      setLoading(true);
       const result = await resetPassword(email);
       if (result) {
         Toast.show({
@@ -55,6 +57,9 @@ const forgotPassword = () => {
         text1: "Error",
         text2: error instanceof Error ? error.message : "Ocurrió un error",
       });
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -85,9 +90,17 @@ const forgotPassword = () => {
           autoCapitalize="none"
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
-        <Text style={styles.buttonText}>Enviar</Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleResetPassword}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Enviando..." : "Restablecer Contraseña"}
+        </Text>
       </TouchableOpacity>
+
       <TouchableOpacity onPress={() => router.replace("/(auth)/signIn")}>
         <Text style={styles.linkText}>Volver a Iniciar Sesión</Text>
       </TouchableOpacity>

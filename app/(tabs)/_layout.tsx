@@ -2,27 +2,36 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Tabs } from 'expo-router';
 import {colors} from '../../constants/colors';
+import { useAuthStore } from '@/stores/authStore';
+import { ActivityIndicator, View } from 'react-native'; 
 
 export default function TabLayout() {
+  const { role, loading } = useAuthStore(); 
+if (loading) {
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" color={colors.primary} />
+    </View>
+  );
+}
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary, 
-        tabBarInactiveTintColor: colors.inactive, 
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.inactive,
         tabBarStyle: {
-          backgroundColor: colors.lightWhite, 
-          boxShadow: "0px 0px 10px #c5c5c5", 
-          height: 60, 
-          borderTopWidth: 0,  
+          backgroundColor: colors.lightWhite,
+          boxShadow: "0px 0px 10px #c5c5c5",
+          height: 60,
+          borderTopWidth: 0,
           padding: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 12, 
+          fontSize: 12,
           fontWeight: "bold",
         },
       }}
     >
-    
       <Tabs.Screen
         name="Payments"
         options={{
@@ -39,8 +48,8 @@ export default function TabLayout() {
             <FontAwesome name="money" size={28} color={color} />
           ),
         }}
-      /> 
-      
+      />
+
       <Tabs.Screen
         name="index"
         options={{
