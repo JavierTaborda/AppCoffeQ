@@ -16,21 +16,21 @@ export default function RootLayout() {
     if (session) {
       router.replace("/"); 
     } else {
-      router.replace("/auth/signIn"); 
+      router.replace("/(auth)/signIn"); 
     }
   }, [session, router]);
 
   return (
     <>
-      <Stack>
-        <Stack.Screen name="auth/signIn" options={{ headerShown: false }} />
-        <Stack.Screen name="auth/signUp" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <Toast config={toastConfig} />
       {typeof window !== "undefined" && session && (
         <Button title="Sign Out" onPress={signOut} />
       )}
+      <Stack>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+      <Toast config={toastConfig} />
     </>
   );
 }

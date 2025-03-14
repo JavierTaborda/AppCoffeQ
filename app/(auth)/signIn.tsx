@@ -119,7 +119,10 @@ const handleSignInWithGoogle = async () => {
         
         <Text style={styles.googleButtonText}>Iniciar Sesión con Google</Text>
       </TouchableOpacity> */}
-      <TouchableOpacity onPress={() => router.push("/auth/signUp")}>
+      <TouchableOpacity onPress={() => router.push("/(auth)/forgotPassword")}>
+        <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/(auth)/signUp")}>
         <Text style={styles.linkText}>¿No tienes una cuenta? Regístrate</Text>
       </TouchableOpacity>
     </SafeAreaView>

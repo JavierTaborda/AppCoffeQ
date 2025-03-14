@@ -8,7 +8,7 @@ type AuthState = {
   signInWithGoogle: () => Promise<any>;
   signOut: () => Promise<void>;
   signUp: (email: string, password: string) => Promise<any>;
-  resetPassword: (email: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<boolean>;
   checkSession: () => Promise<void>;
   setRole: (role: string) => void;
 };
@@ -40,16 +40,15 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
       if (error) throw error;
 
-     
       return new Promise((resolve, reject) => {
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
           if (session) {
             const role = session.user?.user_metadata?.role || "user";
-            set({ session, role }); 
-            subscription.unsubscribe(); 
-            resolve(session); 
+            set({ session, role });
+            subscription.unsubscribe();
+            resolve(session);
           }
         });
       });
@@ -94,6 +93,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) throw error;
+      return true;
     } catch (error) {
       console.error("Error resetting password:", error);
       throw new Error("Failed to reset password. Please try again.");

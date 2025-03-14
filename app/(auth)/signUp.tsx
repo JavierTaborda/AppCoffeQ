@@ -88,7 +88,7 @@ const SignUp = () => {
         text1: "Éxito",
         text2: "Registro exitoso. Por favor, inicia sesión.",
       });
-      router.replace("/auth/signIn");
+      router.replace("/(auth)/signIn");
     } catch (error) {
       Toast.show({
         type: "error",
@@ -224,7 +224,7 @@ const SignUp = () => {
       </TouchableOpacity>
 
       
-      <TouchableOpacity onPress={() => router.replace("/auth/signIn")}>
+      <TouchableOpacity onPress={() => router.replace("/(auth)/signIn")}>
         <Text style={styles.linkText}>
           ¿Ya tienes una cuenta? Inicia sesión
         </Text>

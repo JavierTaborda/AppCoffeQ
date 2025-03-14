@@ -17,7 +17,7 @@ export const toastConfig = {
         color: colors.darkGray,
       }}
       text2Style={{
-        fontSize: 16, 
+        fontSize: 14, 
         color: colors.gray,
       }}
     />
@@ -36,7 +36,7 @@ export const toastConfig = {
         color: colors.darkGray,
       }}
       text2Style={{
-        fontSize: 18,
+        fontSize: 14,
         color: colors.gray,
       }}
     />
@@ -55,7 +55,7 @@ export const toastConfig = {
         color: colors.darkGray,
       }}
       text2Style={{
-        fontSize: 16,
+        fontSize: 14,
         color: colors.gray,
       }}
     />
