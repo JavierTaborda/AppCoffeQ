@@ -6,6 +6,7 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Order } from "@/interfaces/Order";
 import { colors } from "@/constants/colors";
@@ -33,9 +34,31 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleDelete = () => {
-    setShowConfirmation(true);
+    Alert.alert(
+      "Confirmación",
+      "¿Estás seguro de que deseas eliminar esta orden?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          onPress: () => {
+            onDelete();
+            Toast.show({
+              type: "success",
+              text1: "Éxito",
+              text2: "La orden ha sido eliminada correctamente.",
+            });
+            onClose();
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
-
+  
   const confirmDelete = () => {
     onDelete();
     setShowConfirmation(false);
@@ -103,7 +126,7 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
         </View>
       </Modal>
 
-      {/* Modal de Confirmación */}
+   
       <Modal
         transparent={true}
         animationType="fade"

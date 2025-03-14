@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  Button, 
 } from "react-native";
 import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
@@ -16,27 +17,27 @@ import { getOrderRecord } from "@/services/OrderService";
 import Toast from "react-native-toast-message";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
+import { useAuthStore } from "@/stores/authStore"; 
+import { LinearGradient } from "expo-linear-gradient";
 
 const History: React.FC = () => {
-  const [orderCustomer, setOrderCustomer] = useState<Order | null>(null); // Cambiado a un solo objeto
+  const [orderCustomer, setOrderCustomer] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const { signOut } = useAuthStore(); 
 
-  
   useEffect(() => {
     fetchOrders();
   }, []);
-
 
   const fetchOrders = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const order = await getOrderRecord("26804112"); // Devuelve un solo objeto
+      const order = await getOrderRecord("26804112");
       setOrderCustomer(order);
-      
     } catch (error) {
       console.error(error);
       setError("Error al cargar el pedido. Inténtalo de nuevo más tarde.");
@@ -56,11 +57,8 @@ const History: React.FC = () => {
     fetchOrders();
   };
 
-
   const renderOrderDetailItem = ({ item }: { item: OrderDetail }) => (
     <View style={styles.detailCard}>
-      
- 
       <View style={styles.detailContent}>
         <Text style={styles.detailTitle}>
           {item.productName || "Producto sin nombre"}
@@ -136,7 +134,7 @@ const History: React.FC = () => {
       <Text style={styles.title}>Todos tus consumos</Text>
       {orderCustomer ? (
         <FlatList
-          data={[orderCustomer]} 
+          data={[orderCustomer]}
           renderItem={({ item }) => renderOrderItem(item)}
           keyExtractor={(item) => item.idOrder.toString()}
           refreshControl={
@@ -153,6 +151,19 @@ const History: React.FC = () => {
           <Text style={styles.emptyText}>No hay pedidos registrados.</Text>
         </View>
       )}
+      <TouchableOpacity onPress={signOut}>
+        <LinearGradient
+          colors={[colors.danger, colors.dangerlight]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.cerrarSesion}
+        >
+          <View style={styles.infoContent}>
+          <Ionicons name="log-out" size={24} color="#ffffff" />
+          <Text style={styles.textoCerrarSesion}>Cerrar sesión</Text>
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -175,7 +186,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-
     elevation: 3,
   },
   orderHeader: {
@@ -219,7 +229,6 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-
     elevation: 3,
   },
   detailImage: {
@@ -280,6 +289,25 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: colors.gray,
+  },
+  cerrarSesion: {
+    padding: 16,
+    marginVertical: 10,
+    marginHorizontal: 5,
+    borderRadius: 15,
+    alignItems: "center",
+    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+  
+  },
+  infoContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  textoCerrarSesion: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

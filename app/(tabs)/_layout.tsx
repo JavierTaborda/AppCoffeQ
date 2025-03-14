@@ -66,7 +66,7 @@ export default function TabLayout() {
           },
 
           tabBarIcon: ({ color }) => (
-            <FontAwesome name="bars" size={28} color={color} />
+            <FontAwesome name="user" size={28} color={color} />
           ),
         }}
       />

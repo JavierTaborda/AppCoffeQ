@@ -10,10 +10,10 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
-  ScrollView, 
+  ScrollView,
 } from "react-native";
-import * as ImagePicker from 'expo-image-picker';
-import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from "expo-image-picker";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Product } from "@/interfaces/Product";
 import { colors } from "@/constants/colors";
 import Toast from "react-native-toast-message";
@@ -38,11 +38,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   useEffect(() => {
     (async () => {
-      if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Se requiere permiso para acceder a la cámara y galería.');
-        }
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Se requiere permiso para acceder a la cámara.");
       }
     })();
   }, []);
@@ -50,7 +48,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const handleImagePicker = async () => {
     setIsLoading(true);
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -79,10 +77,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const handleSubmit = () => {
     if (!name || !description || !price || !stock) {
       Toast.show({
-           type: "error",
-           text1: "Atención",
-           text2: "La orden ha sido eliminada correctamente.",
-         });
+        type: "error",
+        text1: "Atención",
+        text2: "Todos los campos son obligatorios.",
+      });
       return;
     }
 
@@ -177,7 +175,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
           </TouchableOpacity>
         </View>
       </View>
-    
     </ScrollView>
   );
 };
@@ -192,7 +189,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-
     elevation: 5,
   },
   label: {

@@ -22,9 +22,9 @@ export default function RootLayout() {
 
   return (
     <>
-      {typeof window !== "undefined" && session && (
+      {/* {typeof window !== "undefined" && session && (
         <Button title="Sign Out" onPress={signOut} />
-      )}
+      )} */}
       <Stack>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
 

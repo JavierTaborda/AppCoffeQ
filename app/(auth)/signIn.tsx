@@ -19,6 +19,7 @@ const SignIn = () => {
   const { signIn, signInWithGoogle } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const validateEmail = (email: string) => {
@@ -27,6 +28,8 @@ const SignIn = () => {
   };
 
   const handleSignIn = async () => {
+    setLoading(true);
+
     if (!validateEmail(email)) {
       Toast.show({
         type: "error",
@@ -45,22 +48,23 @@ const SignIn = () => {
         text2: error instanceof Error ? error.message : "Ocurrió un error",
       });
     }
+    setLoading(false);
   };
 
-const handleSignInWithGoogle = async () => {
-  try {
-    const session = await signInWithGoogle(); 
-    if (session) {
-      router.replace("/"); 
+  const handleSignInWithGoogle = async () => {
+    try {
+      const session = await signInWithGoogle();
+      if (session) {
+        router.replace("/");
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error instanceof Error ? error.message : "Ocurrió un error",
+      });
     }
-  } catch (error) {
-    Toast.show({
-      type: "error",
-      text1: "Error",
-      text2: error instanceof Error ? error.message : "Ocurrió un error",
-    });
-  }
-};
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -105,8 +109,15 @@ const handleSignInWithGoogle = async () => {
           secureTextEntry
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-        <Text style={styles.buttonText}>Iniciar Sesión</Text>
+    
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleSignIn}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Procesando..." : "Iniciar Sesión"}
+        </Text>
       </TouchableOpacity>
       {/* <TouchableOpacity
         style={styles.googleButton}
@@ -225,6 +236,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 16,
     textDecorationLine: "underline",
+  },
+
+  loadingText: {
+    fontSize: 16,
+    color: colors.white,
+    marginBottom: 16,
+  },
+  buttonDisabled: {
+    backgroundColor: colors.inactive,
   },
 });
 

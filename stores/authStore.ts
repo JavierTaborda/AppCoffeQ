@@ -28,8 +28,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ session: data.session, role });
       return data;
     } catch (error) {
-      console.error("Error signing in:", error);
-      throw new Error("Failed to sign in. Please check your credentials.");
+      console.error("Error al iniciar sesión:", error);
+      throw new Error("Error al iniciar sesión. Por favor, verifica tus credenciales.");
     }
   },
 
@@ -53,8 +53,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         });
       });
     } catch (error) {
-      console.error("Error signing in with Google:", error);
-      throw new Error("Failed to sign in with Google.");
+      console.error("Error al iniciar sesión con Google:", error);
+      throw new Error("Error al iniciar sesión con Google.");
     }
   },
 
@@ -63,17 +63,17 @@ export const useAuthStore = create<AuthState>((set) => ({
       await supabase.auth.signOut();
       set({ session: null, role: null });
     } catch (error) {
-      console.error("Error signing out:", error);
-      throw new Error("Failed to sign out.");
+      console.error("Error al cerrar sesión:", error);
+      throw new Error("Error al cerrar sesión.");
     }
   },
 
   signUp: async (email, password) => {
     if (!email || !password) {
-      throw new Error("Email and password are required.");
+      throw new Error("El correo electrónico y la contraseña son obligatorios.");
     }
     if (!validateEmail(email)) {
-      throw new Error("Please enter a valid email address.");
+      throw new Error("Por favor, ingresa una dirección de correo electrónico válida.");
     }
 
     try {
@@ -84,8 +84,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error("Error signing up:", error);
-      throw new Error("Failed to sign up. Please try again.");
+      console.error("Error al registrarse:", error);
+      throw new Error("Error al registrarse. Por favor, inténtalo de nuevo.");
     }
   },
 
@@ -95,8 +95,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (error) throw error;
       return true;
     } catch (error) {
-      console.error("Error resetting password:", error);
-      throw new Error("Failed to reset password. Please try again.");
+      console.error("Error al restablecer la contraseña:", error);
+      throw new Error("Error al restablecer la contraseña. Por favor, inténtalo de nuevo.");
     }
   },
 
@@ -109,7 +109,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ session: data.session, role });
       }
     } catch (error) {
-      console.error("Error checking session:", error);
+      console.error("Error al verificar la sesión:", error);
     }
   },
 
@@ -117,7 +117,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     if (["admin", "user"].includes(role)) {
       set({ role });
     } else {
-      console.warn("Invalid role:", role);
+      console.warn("Rol inválido:", role);
     }
   },
 }));

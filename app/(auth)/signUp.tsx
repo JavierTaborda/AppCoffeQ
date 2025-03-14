@@ -22,6 +22,7 @@ const SignUp = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const validateEmail = (email: string) => {
@@ -30,6 +31,7 @@ const SignUp = () => {
   };
 
   const handleSignUp = async () => {
+    setLoading(true);
     
     if (!name || !cedula || !email || !phone || !password || !confirmPassword) {
       Toast.show({
@@ -96,6 +98,7 @@ const SignUp = () => {
         text2: error instanceof Error ? error.message : "Ocurrió un error",
       });
     }
+    setLoading(false);
   };
 
   return (
@@ -218,9 +221,16 @@ const SignUp = () => {
         />
       </View>
 
-   
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Regístrate</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleSignUp}
+        disabled={loading}
+      >
+        {loading ? (
+          <Text style={styles.buttonText}>Cargando...</Text>
+        ) : (
+          <Text style={styles.buttonText}>Regístrate</Text>
+        )}
       </TouchableOpacity>
 
       
@@ -287,6 +297,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 16,
     boxShadow: "2px 2px 5px rgba(0,0,0,0.1)",
+  },
+  buttonDisabled: {
+    backgroundColor: colors.inactive,
   },
   buttonText: {
     color: colors.whiteBack,
