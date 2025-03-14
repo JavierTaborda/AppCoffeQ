@@ -28,7 +28,14 @@ const SignIn = () => {
   };
 
   const handleSignIn = async () => {
-    setLoading(true);
+    if (!email || !password) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Por favor, complete todos los campos",
+      });
+      return;
+    }
 
     if (!validateEmail(email)) {
       Toast.show({
@@ -39,6 +46,7 @@ const SignIn = () => {
       return;
     }
     try {
+      setLoading(true);
       await signIn(email, password);
       router.replace("/");
     } catch (error) {
@@ -47,8 +55,9 @@ const SignIn = () => {
         text1: "Error",
         text2: error instanceof Error ? error.message : "Ocurrió un error",
       });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSignInWithGoogle = async () => {
@@ -109,7 +118,7 @@ const SignIn = () => {
           secureTextEntry
         />
       </View>
-    
+
       <TouchableOpacity
         style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleSignIn}

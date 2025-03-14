@@ -22,21 +22,7 @@ export default function TabLayout() {
         },
       }}
     >
-     
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="food-variant"
-              size={28}
-              color={color}
-            />
-          ),
-          headerShown: false,
-        }}
-      />
+    
       <Tabs.Screen
         name="Payments"
         options={{
@@ -52,6 +38,21 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <FontAwesome name="money" size={28} color={color} />
           ),
+        }}
+      /> 
+      
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="food-variant"
+              size={28}
+              color={color}
+            />
+          ),
+          headerShown: false,
         }}
       />
       <Tabs.Screen

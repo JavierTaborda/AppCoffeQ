@@ -279,9 +279,17 @@ export default function ProductList() {
       <ModalFinish
         isVisible={isModalFinishVisible}
         onClose={() => setModalFinishVisible(false)}
+        onDelete={() => {
+          if (order.orderDetailsDTO) {
+            setOrder({
+              ...order,
+              orderDetailsDTO: [],
+              total: 0,
+            });
+          }
+        }}
         order={order}
       />
-
     </SafeAreaView>
   );
 }

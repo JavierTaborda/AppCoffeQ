@@ -24,6 +24,7 @@ const { height } = Dimensions.get("window");
 interface ModalFinishProps {
   isVisible: boolean;
   onClose: () => void;
+  onDelete: () => void;
   order: Order | null;
 }
 
@@ -31,6 +32,7 @@ const ModalFinish: React.FC<ModalFinishProps> = ({
   isVisible,
   onClose,
   order,
+  onDelete,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -140,6 +142,7 @@ const ModalFinish: React.FC<ModalFinishProps> = ({
           text1: "Éxito",
           text2: "Pedido confirmado correctamente.",
         });
+        
       }
     } catch (error) {
       Toast.show({
@@ -149,6 +152,7 @@ const ModalFinish: React.FC<ModalFinishProps> = ({
       });
     } finally {
       setIsLoading(false);
+       onDelete();
       onClose();
     }
   };

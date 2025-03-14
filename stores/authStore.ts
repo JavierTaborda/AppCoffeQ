@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { supabase } from "@/services/supabase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type AuthState = {
   session: any;
   role: string | null;
+  jwt: string | null;
   signIn: (email: string, password: string) => Promise<any>;
   signInWithGoogle: () => Promise<any>;
   signOut: () => Promise<void>;
@@ -11,11 +13,13 @@ type AuthState = {
   resetPassword: (email: string) => Promise<boolean>;
   checkSession: () => Promise<void>;
   setRole: (role: string) => void;
+  setJwt: (jwt: string) => void; 
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
   session: null,
   role: null,
+  jwt: null, 
 
   signIn: async (email, password) => {
     try {
@@ -24,12 +28,17 @@ export const useAuthStore = create<AuthState>((set) => ({
         password,
       });
       if (error) throw error;
+
       const role = data.session?.user?.user_metadata?.role || "user";
-      set({ session: data.session, role });
+      const jwt = data.session?.access_token; 
+      set({ session: data.session, role, jwt }); 
+      await AsyncStorage.setItem("jwt", jwt); 
       return data;
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
-      throw new Error("Error al iniciar sesión. Por favor, verifica tus credenciales.");
+      throw new Error(
+        "Error al iniciar sesión. Por favor, verifica tus credenciales."
+      );
     }
   },
 
@@ -46,7 +55,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         } = supabase.auth.onAuthStateChange((_event, session) => {
           if (session) {
             const role = session.user?.user_metadata?.role || "user";
-            set({ session, role });
+            const jwt = session.access_token; 
+            set({ session, role, jwt }); 
+            AsyncStorage.setItem("jwt", jwt); 
             subscription.unsubscribe();
             resolve(session);
           }
@@ -61,7 +72,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     try {
       await supabase.auth.signOut();
-      set({ session: null, role: null });
+      set({ session: null, role: null, jwt: null }); 
+      await AsyncStorage.removeItem("jwt"); 
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
       throw new Error("Error al cerrar sesión.");
@@ -70,10 +82,14 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   signUp: async (email, password) => {
     if (!email || !password) {
-      throw new Error("El correo electrónico y la contraseña son obligatorios.");
+      throw new Error(
+        "El correo electrónico y la contraseña son obligatorios."
+      );
     }
     if (!validateEmail(email)) {
-      throw new Error("Por favor, ingresa una dirección de correo electrónico válida.");
+      throw new Error(
+        "Por favor, ingresa una dirección de correo electrónico válida."
+      );
     }
 
     try {
@@ -96,7 +112,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       return true;
     } catch (error) {
       console.error("Error al restablecer la contraseña:", error);
-      throw new Error("Error al restablecer la contraseña. Por favor, inténtalo de nuevo.");
+      throw new Error(
+        "Error al restablecer la contraseña. Por favor, inténtalo de nuevo."
+      );
     }
   },
 
@@ -106,7 +124,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (error) throw error;
       if (data.session) {
         const role = data.session.user?.user_metadata?.role || "user";
-        set({ session: data.session, role });
+        const jwt = data.session.access_token; 
+        set({ session: data.session, role, jwt }); 
+        await AsyncStorage.setItem("jwt", jwt); 
       }
     } catch (error) {
       console.error("Error al verificar la sesión:", error);
@@ -119,6 +139,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     } else {
       console.warn("Rol inválido:", role);
     }
+  },
+
+  setJwt: (jwt: string) => {
+    set({ jwt }); 
   },
 }));
 
