@@ -12,10 +12,11 @@ export async function getPaymentOrder(idOrder:number ): Promise<Payment[]>
         return [];
     }
 } 
-export async function getPayments( ): Promise<Payment[]>
+export async function getPayments( d1:string, d2:string, customerCedula:string ): Promise<Payment[]>
 {
   try {
-        const response = await api.get(`/payment`);
+        const response = await api.get(`/payment/${d1}/${d2}/${customerCedula}`);
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error(error);

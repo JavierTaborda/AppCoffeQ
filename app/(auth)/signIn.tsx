@@ -13,7 +13,6 @@ import Toast from "react-native-toast-message";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { supabase } from "@/services/supabase";
 
 const SignIn = () => {
   const { signIn, signInWithGoogle } = useAuthStore();
