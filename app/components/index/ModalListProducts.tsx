@@ -7,6 +7,7 @@ import {
   Modal,
   TouchableOpacity,
   Alert,
+  Platform,
 } from "react-native";
 import { Order } from "@/interfaces/Order";
 import { colors } from "@/constants/colors";
@@ -34,29 +35,44 @@ const ModalListProducts: React.FC<ModalProductProps> = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleDelete = () => {
-    Alert.alert(
-      "Confirmación",
-      "¿Estás seguro de que deseas eliminar esta orden?",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Eliminar",
-          onPress: () => {
-            onDelete();
-            Toast.show({
-              type: "success",
-              text1: "Éxito",
-              text2: "La orden ha sido eliminada correctamente.",
-            });
-            onClose();
+    if (Platform.OS === "web") {
+      const confirmation = window.confirm(
+        "¿Estás seguro de que deseas eliminar esta orden?"
+      );
+      if (confirmation) {
+        onDelete();
+        Toast.show({
+          type: "success",
+          text1: "Éxito",
+          text2: "La orden ha sido eliminada correctamente.",
+        });
+        onClose();
+      }
+    } else {
+      Alert.alert(
+        "Confirmación",
+        "¿Estás seguro de que deseas eliminar esta orden?",
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
           },
-          style: "destructive",
-        },
-      ]
-    );
+          {
+            text: "Eliminar",
+            onPress: () => {
+              onDelete();
+              Toast.show({
+                type: "success",
+                text1: "Éxito",
+                text2: "La orden ha sido eliminada correctamente.",
+              });
+              onClose();
+            },
+            style: "destructive",
+          },
+        ]
+      );
+    }
   };
   
   const confirmDelete = () => {

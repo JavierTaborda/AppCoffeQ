@@ -6,6 +6,7 @@ type AuthState = {
   session: any;
   role: string | null;
   jwt: string | null;
+  cedula: string;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<any>;
   signInWithGoogle: () => Promise<any>;
@@ -22,6 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   role: null,
   jwt: null,
   loading: true,
+  cedula: "",
   signIn: async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -30,8 +32,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
       if (error) throw error;
 
-      const role = data.session?.user?.user_metadata?.role || "user";
+      const role = data.session?.user?.role || "user";
       const jwt = data.session?.access_token;
+      const cedula = data.session?.user?.user_metadata?.cedula;
+      console.log("cedula", cedula);
       set({ session: data.session, role, jwt, loading: false });
       await AsyncStorage.setItem("jwt", jwt);
       return data;
@@ -125,9 +129,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data, error } = await supabase.auth.getSession();
       if (error) throw error;
       if (data.session) {
-        const role = data.session.user?.user_metadata?.role || "user";
-        const jwt = data.session.access_token;
-        set({ session: data.session, role, jwt, loading: false }); 
+       
+              const role = data.session?.user?.role || "user";
+              const jwt = data.session?.access_token;
+              const cedula = data.session?.user?.user_metadata?.cedula;
+        set({ session: data.session, role, jwt, cedula, loading: false }); 
         await AsyncStorage.setItem("jwt", jwt);
       } else {
         set({ loading: false }); 

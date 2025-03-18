@@ -8,8 +8,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   RefreshControl,
-  Image,
-  Button, 
+
 } from "react-native";
 import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
@@ -25,7 +24,7 @@ const History: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const { signOut } = useAuthStore(); 
+  const { signOut, cedula, loading } = useAuthStore(); 
 
   useEffect(() => {
     fetchOrders();
@@ -36,7 +35,7 @@ const History: React.FC = () => {
     setError(null);
 
     try {
-      const order = await getOrderRecord("26804112");
+      const order = await getOrderRecord(cedula);
       setOrderCustomer(order);
     } catch (error) {
       console.error(error);
@@ -128,22 +127,29 @@ const History: React.FC = () => {
       </View>
     );
   }
+  if(loading){
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Todos tus consumos</Text>
-      {orderCustomer ? (
+      {orderCustomer && orderCustomer.idOrder ? (
         <FlatList
           data={[orderCustomer]}
           renderItem={({ item }) => renderOrderItem(item)}
           keyExtractor={(item) => item.idOrder.toString()}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[colors.primary]}
+          tintColor={colors.primary}
+        />
           }
         />
       ) : (
