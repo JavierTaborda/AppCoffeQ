@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Payment } from "@/interfaces/Payment";
-import { getPayments } from "@/services/PaymentService";
+import { deletePayment, getPayments, updatePayment } from "@/services/PaymentService";
 import { getCustomers } from "@/services/CustomerService";
 import { useAuthStore } from "@/stores/authStore";
 import { Customer } from "@/interfaces/Customer";
+import Toast from "react-native-toast-message";
 
 export const usePaymentFilters = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -11,35 +12,21 @@ export const usePaymentFilters = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [isFiltersModalVisible, setFiltersModalVisible] = useState(false);
   const { role, loading, cedula } = useAuthStore();
 
   const loadPayments = async () => {
-    if (loading) return; 
+    if (loading) return;
     setIsLoading(true);
     try {
-      if (role === "user") {
-
-        const getpayments = await getPayments(
-          startDate.toISOString(),
-          endDate.toISOString(),
-          cedula
-        );
-        setPayments(getpayments);
-
-        console.log("Payments", getpayments);
-      } else {
-        const getpayments = await getPayments(
-          startDate.toISOString(),
-          endDate.toISOString(),
-          selectedCustomer || cedula
-        );
-        console.log("Payments", getpayments); 
-        setPayments(getpayments); 
-      }
-
+      const getpayments = await getPayments(
+        startDate.toISOString(),
+        endDate.toISOString(),
+        role === "user" ? cedula : selectedCustomer || cedula
+      );
+      setPayments(getpayments);
+      console.log("Payments", getpayments);
     } catch (error) {
       console.error(error);
     } finally {
@@ -49,7 +36,7 @@ export const usePaymentFilters = () => {
   };
 
   const loadCustomers = async () => {
-    if (loading) return; 
+    if (loading) return;
     try {
       const customers = await getCustomers();
       setCustomers(customers);
@@ -58,43 +45,96 @@ export const usePaymentFilters = () => {
     }
   };
 
- 
-  // Refresh the payment list
   const onRefresh = () => {
     setRefreshing(true);
     loadPayments();
   };
 
-  // Change the start date
   const handleStartDateChange = (date: Date) => {
     setStartDate(date);
-  
   };
 
-  // Change the end date
   const handleEndDateChange = (date: Date) => {
     setEndDate(date);
-
   };
 
-  // Change the selected customer
-  const handleCustomerChange = (customer: string | null) => {
+  const handleCustomerChange = (customer: string ) => {
     setSelectedCustomer(customer);
-
   };
 
-  // Show/hide the filters modal
-  const toggleFiltersModal = () => {
-    setFiltersModalVisible(!isFiltersModalVisible);
-  };
+  const ApprovePayment = async (payment:Payment, approve:boolean) => {
 
-  // Load payments and customers when the component mounts
+    try{
+      payment.isApproved=approve;
+      var result= await updatePayment(payment);
+      if(result){
+     Toast.show({
+       type: "success",
+       text1: "Éxito",
+       text2: "Pago aprobado correctamente.",
+     });
+    }
+    else{
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "No se pudo aprobar el pago.",
+      });}
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "No se pudo aprobar el pago.",
+      });
+    } finally {
+      loadPayments();
+    }
+
+  }
+
+  const DeletePayment = async (idPayment:number) => {
+      try{
+         var result= await deletePayment(idPayment);
+         if(result){
+        Toast.show({
+          type: "success",
+          text1: "Éxito",
+          text2: "Pago eliminado correctamente.",
+        });
+      }
+      else{
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "No se pudo eliminar el pago.",
+        });}
+      } catch (error) {
+        console.error(error);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "No se pudo eliminar el pago.",
+        });
+      } finally {
+        
+        loadPayments();
+      }
+     
+    };
+
   useEffect(() => {
     if (!loading) {
       loadPayments();
       loadCustomers();
     }
   }, [loading]);
+
+  useEffect(() => {
+    if (!loading) {
+      loadPayments();
+    }
+  }, []);
 
   return {
     payments,
@@ -104,12 +144,12 @@ export const usePaymentFilters = () => {
     endDate,
     selectedCustomer,
     customers,
-    isFiltersModalVisible,
     loadPayments,
     onRefresh,
     handleStartDateChange,
     handleEndDateChange,
     handleCustomerChange,
-    toggleFiltersModal,
+    DeletePayment,
+    ApprovePayment,
   };
 };

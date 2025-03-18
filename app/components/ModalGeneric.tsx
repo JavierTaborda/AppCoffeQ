@@ -86,16 +86,15 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
         }
       },
       onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 30 && gestureState.vy > 0.5) {
+        if (gestureState.dy > 50 && gestureState.vy > 0.5) {
           Animated.timing(panY, {
             toValue: 500,
             duration: 200,
             useNativeDriver: true,
-          }).start(onClose);
+          }).start(onClose); 
         } else {
-          Animated.timing(panY, {
+          Animated.spring(panY, {
             toValue: 0,
-            duration: 200,
             useNativeDriver: true,
           }).start();
         }
@@ -163,7 +162,10 @@ const ModalGeneric: React.FC<ModalGenericProps> = ({
                 {onConfirm && (
                   <TouchableOpacity
                     style={styles.confirmButton}
-                    onPress={onConfirm}
+                    onPress={() => {
+                      onConfirm(); 
+                      onClose(); 
+                    }}
                   >
                     <Text style={styles.confirmButtonText}>{confirmText}</Text>
                   </TouchableOpacity>
@@ -192,10 +194,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     width: "100%",
-  maxHeight: "80%",
+    maxHeight: "80%",
   },
   modalContentSecondary: {
-    backgroundColor:  colors.white,
+    backgroundColor: colors.white,
     padding: 15,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
   },
   dragBarContainer: {
     width: "100%",
-    height:50,
+    height: 50,
     justifyContent: "center",
     alignItems: "center",
     paddingTop: 30,
