@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     width: "100%",
-    maxHeight: "80%",
+    maxHeight: "90%",
   },
   modalContentSecondary: {
     backgroundColor: colors.white,

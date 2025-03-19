@@ -19,10 +19,10 @@ interface FiltersModalProps {
   startDate: Date;
   endDate: Date;
   customers: Customer[];
-  selectedCustomer: string; 
+  selectedCustomer: string;
   onStartDateChange: (date: Date) => void;
   onEndDateChange: (date: Date) => void;
-  onCustomerChange: (customer: string) => void; 
+  onCustomerChange: (customer: string) => void;
   onConfirm: () => void;
 }
 
@@ -67,80 +67,127 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
         onClose();
       }}
     >
-      <TouchableOpacity
-        style={styles.datePickerContainer}
-        onPress={() => setShowStartDatePicker(true)}
-      >
-        <Ionicons name="calendar" size={20} color={colors.primary} />
-        <Text style={styles.dateButtonText}>
-          Inicio: {startDate.toLocaleDateString()}
-        </Text>
-      </TouchableOpacity>
+      <View style={{ alignItems: "center" }}>
+        <View style={styles.datePickerContainer}>
+          <Text style={styles.dateButtonText}>Inicio:</Text>
+          {Platform.OS === "web" ? (
+            <input
+              type="date"
+              value={startDate.toISOString().split("T")[0]}
+              onChange={(e) => onStartDateChange(new Date(e.target.value))}
+              style={{ flex: 1, marginLeft: 10 }}
+            />
+          ) : (
+            <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
+              <View style={styles.datestyle}>
+                <Ionicons name="calendar" size={20} color={colors.primary} />
+                <Text style={styles.dateButtonText}>
+                  {startDate.toLocaleDateString()}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
 
-      {showStartDatePicker && (
-        <DateTimePicker
-          value={startDate}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={handleStartDateChange}
-        />
-      )}
-
-      <TouchableOpacity
-        style={styles.datePickerContainer}
-        onPress={() => setShowEndDatePicker(true)}
-      >
-        <Ionicons name="calendar" size={20} color={colors.primary} />
-        <Text style={styles.dateButtonText}>
-          Fin: {endDate.toLocaleDateString()}
-        </Text>
-      </TouchableOpacity>
-
-      {showEndDatePicker && (
-        <DateTimePicker
-          value={endDate}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={handleEndDateChange}
-        />
-      )}
-
-      <Picker
-        selectedValue={selectedCustomer || ""} 
-        onValueChange={onCustomerChange}
-        style={styles.customerPicker}
-      >
-        <Picker.Item label="Todos los clientes" value="Todos" />
-        
-        {customers.map((customer) => (
-          <Picker.Item
-            key={customer.idCustomer}
-            label={customer.name}
-            value={customer.cedula}
+        {showStartDatePicker && Platform.OS !== "web" && (
+          <DateTimePicker
+            value={startDate}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={handleStartDateChange}
+            
           />
-        ))}
-      </Picker>
+        )}
+
+        <View style={styles.datePickerContainer}>
+          <Text style={styles.dateButtonText}>Fin:</Text>
+          {Platform.OS === "web" ? (
+            <input
+              type="date"
+              value={endDate.toISOString().split("T")[0]}
+              onChange={(e) => onEndDateChange(new Date(e.target.value))}
+              style={{ flex: 1, marginLeft: 10 }}
+            />
+          ) : (
+            <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
+              <View style={styles.datestyle}>
+                <Ionicons name="calendar" size={20} color={colors.primary} />
+                <Text style={styles.dateButtonText}>
+                  {endDate.toLocaleDateString()}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {showEndDatePicker && Platform.OS !== "web" && (
+          <DateTimePicker
+            value={endDate}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={handleEndDateChange}
+          />
+        )}
+      </View>
+      <View style={{ marginBottom: 20 }}>
+        <Text style={styles.dateButtonText}>Cliente:</Text>
+        <Picker
+          selectedValue={selectedCustomer || ""}
+          onValueChange={onCustomerChange}
+          style={styles.customerPicker}
+        >
+          <Picker.Item label="Todos los clientes" value="Todos" />
+          {customers.map((customer) => (
+            <Picker.Item
+              key={customer.idCustomer}
+              label={customer.name}
+              value={customer.cedula}
+            />
+          ))}
+        </Picker>
+      </View>
     </ModalGeneric>
   );
 };
 
 const styles = StyleSheet.create({
   datePickerContainer: {
+    width: "90%",
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
-  },
-  dateButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: colors.darkGray,
-  },
-  customerPicker: {
-    height: 50,
-    width: "100%",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     backgroundColor: colors.lightWhite,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 15,
+    boxShadow: "2px 2px 5px rgba(0,0,0,0.2)",
+    elevation: 2,
+  },
+  dateButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: colors.darkGray,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  customerPicker: {
+    alignContent: "center",
+    height: 50,
+    paddingTop: 5,
+    backgroundColor: colors.lightWhite,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    color: colors.darkGray,
+    boxShadow: "2px 2px 5px rgba(0,0,0,0.7)",
+    elevation: 2,
+  },
+  datestyle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
   },
 });
 

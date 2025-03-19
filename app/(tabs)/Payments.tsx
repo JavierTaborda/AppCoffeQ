@@ -8,15 +8,16 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
 import FiltersModal from "@/app/components/payments/FiltersModal";
 import { usePaymentFilters } from "@/hooks/usePayments";
 import { Payment } from "@/interfaces/Payment";
-import ModalGeneric from "@/app/components/ModalGeneric";
 import { useAuthStore } from "@/stores/authStore";
 import Toast from "react-native-toast-message";
+import AddPaymentModal from "../components/payments/AddPaymentModal";
 
 const Payments: React.FC = () => {
   const {
@@ -37,25 +38,81 @@ const Payments: React.FC = () => {
   } = usePaymentFilters();
 
   const [isFiltersModalVisible, setFiltersModalVisible] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [isAddPaymentModalVisible, setAddPaymentModalVisible] = useState(false);
+  const [newPayment, setNewPayment] = useState<Payment>();
   const { role, loading } = useAuthStore();
 
   const toggleFiltersModal = () => {
     setFiltersModalVisible((prev) => !prev);
   };
 
+  //modal to add payment
+  const toggleAddPaymentModal = () => {
+    setAddPaymentModalVisible((prev) => !prev);
+  }
+
   const handleApplyFilters = () => {
     loadPayments();
     toggleFiltersModal();
   };
 
-  const handleApprovePayment = async (payment: Payment, action:boolean) => {
-   ApprovePayment(payment, action);
+  const handleApprovePayment = async (payment: Payment, action: boolean) => {
+    const confirmationMessage = `¿Estás seguro de que deseas ${
+      action ? "aprobar" : "desaprobar"
+    } esta orden?`;
+
+    const handleConfirmation = () => ApprovePayment(payment, action);
+
+    if (Platform.OS === "web") {
+      if (window.confirm(confirmationMessage)) {
+        handleConfirmation();
+      }
+    } else {
+      Alert.alert("Confirmación", confirmationMessage, [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Aceptar", onPress: handleConfirmation, style: "destructive" },
+      ]);
+    }
   };
 
   const handleDeletePayment = async (payment: Payment) => {
-   DeletePayment(payment.idPayment);
+    const confirmationMessage =
+      "¿Estás seguro de que deseas eliminar esta orden?";
+
+    const handleConfirmation = () => DeletePayment(payment.idPayment);
+
+    if (Platform.OS === "web") {
+      if (window.confirm(confirmationMessage)) {
+        handleConfirmation();
+      }
+    } else {
+      Alert.alert("Confirmación", confirmationMessage, [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Aceptar", onPress: handleConfirmation, style: "destructive" },
+      ]);
+    }
   };
+
+const handleAddPayment = (newPayment: Payment) => {
+  if (!newPayment.ref || !newPayment.amount || !newPayment.customerName) {
+    Toast.show({
+      type: "error",
+      text1: "Error",
+      text2: "Por favor, completa todos los campos.",
+    });
+    return;
+  }
+
+  Toast.show({
+    type: "success",
+    text1: "Éxito",
+    text2: "El pago ha sido agregado correctamente.",
+  });
+
+  toggleAddPaymentModal();
+  loadPayments(); 
+};
+
 
   const renderPaymentItem = ({ item }: { item: Payment }) => (
     <View style={styles.paymentCard}>
@@ -63,7 +120,7 @@ const Payments: React.FC = () => {
         <Text style={styles.paymentRef}>Referencia: {item.ref}</Text>
         <Text style={styles.paymentAmount}>${item.amount.toFixed(2)}</Text>
       </View>
-      <Text style={styles.paymentDate}>Fecha: {item.date}</Text>
+      <Text style={styles.paymentDate}>Fecha: {item.date.split("T")[0]}</Text>
       <Text style={styles.paymentCustomer}>Cliente: {item.customerName}</Text>
 
       <View style={styles.approvalStatus}>
@@ -73,7 +130,7 @@ const Payments: React.FC = () => {
           <Ionicons name="close-circle" size={20} color={colors.danger} />
         )}
         <Text style={styles.approvalText}>
-          {item.isApproved ? "Aprobado" : "Pendiente"}
+          {item.isApproved ? "Aprobado" : "No Aprobado"}
         </Text>
       </View>
 
@@ -82,7 +139,7 @@ const Payments: React.FC = () => {
           {item.isApproved ? (
             <TouchableOpacity
               style={[styles.actionButton, styles.desapproveButton]}
-              onPress={() => handleApprovePayment(item,false)}
+              onPress={() => handleApprovePayment(item, false)}
             >
               <Ionicons name="close" size={20} color={colors.white} />
               <Text style={styles.actionButtonText}>Desaprobar</Text>
@@ -138,6 +195,12 @@ const Payments: React.FC = () => {
         onCustomerChange={handleCustomerChange}
         onConfirm={handleApplyFilters}
       />
+      <AddPaymentModal
+        isVisible={isAddPaymentModalVisible}
+        onClose={toggleAddPaymentModal}
+        onConfirm={handleAddPayment}
+        customers={customers}
+      />
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -159,6 +222,9 @@ const Payments: React.FC = () => {
           }
         />
       )}
+      <TouchableOpacity onPress={toggleAddPaymentModal} style={styles.fab}>
+        <Ionicons name="add" size={30} color={colors.white} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -261,6 +327,22 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 14,
     fontWeight: "bold",
+  },
+  fab: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
+    backgroundColor: colors.primary,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.darkGray,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 

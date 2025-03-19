@@ -26,7 +26,7 @@ export const usePaymentFilters = () => {
         role === "user" ? cedula : selectedCustomer || cedula
       );
       setPayments(getpayments);
-      console.log("Payments", getpayments);
+  
     } catch (error) {
       console.error(error);
     } finally {
@@ -62,36 +62,40 @@ export const usePaymentFilters = () => {
     setSelectedCustomer(customer);
   };
 
-  const ApprovePayment = async (payment:Payment, approve:boolean) => {
+  const ApprovePayment = async (payment: Payment, approve: boolean) => {
+    try {
+      const updatedPayment = { ...payment, isApproved: approve };
+      const result = await updatePayment(updatedPayment);
 
-    try{
-      payment.isApproved=approve;
-      var result= await updatePayment(payment);
-      if(result){
-     Toast.show({
-       type: "success",
-       text1: "Éxito",
-       text2: "Pago aprobado correctamente.",
-     });
-    }
-    else{
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "No se pudo aprobar el pago.",
-      });}
+      if (result) {
+        Toast.show({
+          type: "success",
+          text1: "Éxito",
+          text2: approve
+            ? "Pago aprobado correctamente."
+            : "Pago desaprobado correctamente.",
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: approve
+            ? "No se pudo aprobar el pago."
+            : "No se pudo desaprobar el pago.",
+        });
+      }
     } catch (error) {
-      console.error(error);
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "No se pudo aprobar el pago.",
+        text2: approve
+          ? "No se pudo aprobar el pago."
+          : "No se pudo desaprobar el pago.",
       });
     } finally {
       loadPayments();
     }
-
-  }
+  };
 
   const DeletePayment = async (idPayment:number) => {
       try{

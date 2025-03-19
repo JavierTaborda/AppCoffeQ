@@ -2,6 +2,15 @@ import { Order } from "@/interfaces/Order";
 import { OrderDetail } from "@/interfaces/OrderDetail";
 import { api } from "@/services/api"; 
 
+export async function getNumberOrder(customerCedula: string): Promise<string> {
+  try {
+    const response = await api.get(`/orders/customerorder/${customerCedula}`);
+    return response.data;
+  } catch (error) {
+    
+    return (error as Error).message || "An unknown error occurred";
+  }
+}
 export async function getOrder(idOrder:number ): Promise<Order[]> { 
     try {
         const response = await api.get(`/orders/${idOrder}`);
@@ -11,7 +20,7 @@ export async function getOrder(idOrder:number ): Promise<Order[]> {
         return [];
     }
 }
-export async function getOrdersCustomer(idCustomer:number ): Promise<Order[]> {
+export async function getOrdersCustomer(idCustomer:string ): Promise<Order[]> {
     try {
         const response = await api.get(`/orders/customer/${idCustomer}`);
         return response.data;
